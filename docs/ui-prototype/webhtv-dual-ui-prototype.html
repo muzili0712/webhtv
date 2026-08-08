@@ -94,6 +94,8 @@ function setPage(page) { state.page = page; state.playerVisible = false; renderA
 function setTheme(theme) { state.theme = theme; renderApp(); }
 function setWallpaper(id) { state.wallpaper = id; renderApp(); }
 function setPlayerSetting(key, value) { state.playerSettings[key] = value; renderApp(); }
+function setPlayerVisible(visible) { state.playerVisible = visible; renderApp(); }
+function togglePlayerVisible() { setPlayerVisible(!state.playerVisible); }
 function nextWallpaper() { return wallpapers[(wallpapers.indexOf(state.wallpaper) + 1) % wallpapers.length]; }
 function showPlayer() { state.playerVisible = true; state.device = state.device === 'mobile' ? 'mobile-player' : state.device; renderApp(); }
 
@@ -109,7 +111,7 @@ function mobileMarkup() {
   return `<div class="app-scrim"></div><div class="screen mobile-screen"><header class="mobile-top"><strong>WebHTV</strong><span>20:26　◌</span></header><div class="search-box">⌕ 搜索电影、剧集、演员</div><section class="poster"><span class="eyebrow">继续观看</span><h1>在海风吹拂的夜晚</h1><p>更新至第 8 集 · ${state.activeLine}</p><button class="primary" onclick="showPlayer()">▶ 继续播放</button></section><div class="state-card"><small>设计画板 / 手机</small><b>540 × 960</b><small>${state.theme === 'dark' ? '深色电影感' : '浅色适配'} · ${state.wallpaper}</small></div><nav class="mobile-bottom">${mobileItems.map((item) => `<button aria-current="${state.page === item ? 'page' : 'false'}" onclick="setPage('${item}')">${item}</button>`).join('')}</nav></div>`;
 }
 function playerMarkup() {
-  return `<div class="screen player-screen"><header class="player-top"><b>在海风吹拂的夜晚 · 第 08 集</b><span>${state.activeLine}　⌄　✕</span></header><button class="player-center" aria-label="暂停">Ⅱ</button><footer class="player-bottom"><span>18:42 / 45:00</span><div class="progress"><i></i></div><button class="primary" onclick="state.playerVisible = !state.playerVisible; renderApp()">⚙ 设置</button></footer><aside class="player-settings" ${state.playerVisible ? '' : 'hidden'}><span class="eyebrow">播放设置</span>${Object.entries(state.playerSettings).map(([key,value]) => `<div class="setting"><span>${key}</span><b>${value}</b></div>`).join('')}<div class="setting"><span>线路</span><b>${state.activeLine}</b></div></aside></div>`;
+  return `<div class="screen player-screen"><header class="player-top"><b>在海风吹拂的夜晚 · 第 08 集</b><span>${state.activeLine}　⌄　✕</span></header><button class="player-center" aria-label="暂停">Ⅱ</button><footer class="player-bottom"><span>18:42 / 45:00</span><div class="progress"><i></i></div><button class="primary" onclick="togglePlayerVisible()">⚙ 设置</button></footer><aside class="player-settings" ${state.playerVisible ? '' : 'hidden'}><span class="eyebrow">播放设置</span>${Object.entries(state.playerSettings).map(([key,value]) => `<div class="setting"><span>${key}</span><b>${value}</b></div>`).join('')}<div class="setting"><span>线路</span><b>${state.activeLine}</b></div></aside></div>`;
 }
 function renderApp() {
   const app = document.getElementById('app');
