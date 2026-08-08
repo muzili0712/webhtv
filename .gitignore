@@ -28,3 +28,4 @@ app/signing/
 plans/
 .tokensave
 .codebase-memory
+.worktrees/
