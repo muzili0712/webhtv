@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WebHTV · 双端 UI 原型</title>
+  <style>
+    :root { --accent:#E7FF4D; --ink:#F8FAFC; --muted:#9AA8BB; --base:#070A10; --surface:rgba(255,255,255,.10); --line:rgba(255,255,255,.16); }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; color:var(--ink); background:#020306; font:14px/1.35 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; }
+    button { font:inherit; color:inherit; cursor:pointer; }
+    .prototype-shell { min-height:100vh; display:grid; place-items:center; padding:28px; background:radial-gradient(circle at 50% 0,#1d2732 0,#070a10 46%,#020306 100%); }
+    .control-deck { width:min(960px,100%); display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:16px; }
+    .control-deck button { border:1px solid var(--line); border-radius:999px; background:#121824; padding:8px 13px; }
+    .control-deck button[aria-pressed="true"] { color:#11170a; border-color:var(--accent); background:var(--accent); box-shadow:0 0 20px rgba(231,255,77,.28); }
+    .control-deck .label { margin-left:auto; color:var(--muted); font-size:12px; }
+    #app { position:relative; overflow:hidden; width:960px; height:540px; color:var(--ink); border:1px solid rgba(255,255,255,.18); border-radius:18px; background:var(--base); box-shadow:0 30px 80px #000b; transform-origin:top center; }
+    #app[data-device="mobile"] { width:540px; height:960px; border-radius:28px; }
+    #app[data-device="mobile-player"] { width:960px; height:540px; border-radius:18px; }
+    #app[data-theme="light"] { --ink:#18202b; --muted:#657386; --base:#f1f0ea; --surface:rgba(24,32,43,.08); --line:rgba(24,32,43,.15); }
+    #app[data-wallpaper="deep-sea"] { background:radial-gradient(circle at 75% 20%,#1a4860 0,transparent 32%),linear-gradient(120deg,#071d2e,#070a10 62%); }
+    #app[data-wallpaper="neon-city"] { background:radial-gradient(circle at 70% 20%,#4d1658 0,transparent 28%),linear-gradient(130deg,#15102d,#070a10 62%); }
+    #app[data-wallpaper="aurora"] { background:radial-gradient(ellipse at 35% 0,#125844 0,transparent 45%),linear-gradient(125deg,#07152a,#070a10 65%); }
+    #app[data-wallpaper="paper"] { background:linear-gradient(120deg,#d8d3c5,#f4f0e5 45%,#cbd9cf); }
+    .app-scrim { position:absolute; inset:0; background:linear-gradient(90deg,rgba(7,10,16,.82),rgba(7,10,16,.48)); pointer-events:none; }
+    #app[data-theme="light"] .app-scrim { background:rgba(247,245,237,.38); }
+    .screen { position:relative; z-index:1; height:100%; display:flex; }
+    .sidebar { width:148px; padding:28px 15px; background:rgba(0,0,0,.22); border-right:1px solid var(--line); }
+    .brand { display:flex; align-items:center; gap:8px; margin:0 0 31px 9px; font-weight:800; letter-spacing:.3px; }
+    .brand i { display:grid; place-items:center; width:24px; height:24px; border-radius:7px; background:var(--accent); color:#12180b; font-style:normal; }
+    .nav-item { width:100%; display:flex; gap:9px; border:0; border-radius:10px; background:transparent; padding:9px; text-align:left; color:var(--muted); }
+    .nav-item:hover,.nav-item[aria-current="page"] { color:var(--ink); background:var(--surface); outline:2px solid var(--accent); outline-offset:2px; box-shadow:0 0 15px rgba(231,255,77,.19); }
+    main { flex:1; padding:27px 36px; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; color:var(--muted); }
+    .topbar strong { color:var(--ink); font-size:16px; }
+    .hero { margin-top:44px; max-width:530px; }
+    .eyebrow { color:var(--accent); font-size:11px; font-weight:700; letter-spacing:1.5px; }
+    h1 { margin:7px 0 10px; font-size:42px; line-height:1.08; letter-spacing:-1.5px; }
+    .hero p { max-width:430px; color:var(--muted); }
+    .primary { margin-top:15px; border:0; border-radius:9px; padding:10px 16px; color:#12180b; background:var(--accent); font-weight:800; }
+    .state-card { position:absolute; right:35px; bottom:27px; width:255px; padding:15px; border:1px solid var(--line); border-radius:13px; background:rgba(7,10,16,.72); backdrop-filter:blur(14px); }
+    #app[data-theme="light"] .state-card { background:rgba(250,249,244,.75); }
+    .state-card small { display:block; color:var(--muted); margin-bottom:7px; }
+    .state-card b { display:block; font-size:15px; }
+    .mobile-screen { flex-direction:column; padding:30px 22px 84px; }
+    .mobile-top { display:flex; justify-content:space-between; align-items:center; }
+    .mobile-top strong { font-size:18px; }
+    .search-box { margin-top:19px; padding:12px 14px; color:var(--muted); border:1px solid var(--line); border-radius:13px; background:var(--surface); }
+    .poster { margin-top:20px; min-height:310px; display:flex; flex-direction:column; justify-content:flex-end; padding:24px; border-radius:20px; background:linear-gradient(0deg,rgba(0,0,0,.8),transparent 70%),linear-gradient(135deg,#33516a,#0f1721 65%); }
+    .poster h1 { font-size:36px; margin:5px 0; }
+    .mobile-bottom { position:absolute; right:0; bottom:0; left:0; display:flex; justify-content:space-around; padding:13px 7px 17px; border-top:1px solid var(--line); background:rgba(7,10,16,.85); }
+    #app[data-theme="light"] .mobile-bottom { background:rgba(249,248,242,.86); }
+    .mobile-bottom button { border:0; background:transparent; color:var(--muted); font-size:11px; }
+    .mobile-bottom button[aria-current="page"] { color:var(--accent); font-weight:800; }
+    .player-screen { flex-direction:column; justify-content:space-between; padding:22px 29px; background:radial-gradient(ellipse at 50% 44%,#365261 0,#101c24 37%,#010203 79%); }
+    .player-top,.player-bottom { display:flex; justify-content:space-between; align-items:center; text-shadow:0 2px 7px #000; }
+    .player-top b { font-size:17px; }
+    .player-center { align-self:center; display:grid; place-items:center; width:68px; height:68px; margin:auto; border:2px solid var(--accent); border-radius:50%; background:rgba(7,10,16,.38); color:var(--accent); font-size:24px; box-shadow:0 0 25px rgba(231,255,77,.3); }
+    .progress { width:70%; height:4px; border-radius:99px; background:rgba(255,255,255,.35); overflow:hidden; }
+    .progress i { display:block; width:43%; height:100%; background:var(--accent); }
+    .player-settings { position:absolute; top:74px; right:28px; width:210px; padding:13px; border:1px solid var(--line); border-radius:12px; background:rgba(7,10,16,.89); }
+    .player-settings[hidden] { display:none; }
+    .setting { display:flex; justify-content:space-between; padding:8px 0; color:var(--muted); }
+    .setting b { color:var(--ink); font-weight:600; }
+    @media (max-width:1000px) { .prototype-shell { align-content:start; overflow:auto; } #app { transform:scale(calc((100vw - 32px) / 960)); margin-bottom:calc(-540px + ((100vw - 32px) / 960 * 540px)); } #app[data-device="mobile"] { transform:scale(calc((100vw - 32px) / 540)); margin-bottom:calc(-960px + ((100vw - 32px) / 540 * 960px)); } }
+  </style>
+</head>
+<body>
+  <div class="prototype-shell">
+    <nav class="control-deck" aria-label="原型预览设备">
+      <button type="button" data-device="tv" onclick="setDevice('tv')">TV · 960 × 540</button>
+      <button type="button" data-device="mobile" onclick="setDevice('mobile')">手机 · 540 × 960</button>
+      <button type="button" data-device="mobile-player" onclick="setDevice('mobile-player')">手机横屏播放器 · 960 × 540</button>
+      <button type="button" onclick="setTheme(state.theme === 'dark' ? 'light' : 'dark')">切换主题</button>
+      <button type="button" onclick="setWallpaper(nextWallpaper())">切换壁纸</button>
+      <span class="label" id="preview-label"></span>
+    </nav>
+    <section id="app" aria-live="polite"></section>
+  </div>
+<script>
+const state = {
+  device: 'tv', page: 'home', theme: 'dark', wallpaper: 'deep-sea',
+  activeLine: '线路 A', playerVisible: false, playerKind: 'vod',
+  playerSettings: { subtitle: '中文 · 自动', danmaku: '开启', aspect: '原始比例', speed: '1.0×' }
+};
+
+const navItems = ['首页', '搜索', '点播', '直播', '收藏', '历史', '文件', '设置'];
+const mobileItems = ['首页', '点播', '直播', '收藏', '我的'];
+const dimensions = { tv: '960 × 540', mobile: '540 × 960', 'mobile-player': '960 × 540' };
+const wallpapers = ['deep-sea', 'neon-city', 'aurora', 'paper'];
+
+function setDevice(device) { state.device = device; renderApp(); }
+function setPage(page) { state.page = page; state.playerVisible = false; renderApp(); }
+function setTheme(theme) { state.theme = theme; renderApp(); }
+function setWallpaper(id) { state.wallpaper = id; renderApp(); }
+function setPlayerSetting(key, value) { state.playerSettings[key] = value; renderApp(); }
+function nextWallpaper() { return wallpapers[(wallpapers.indexOf(state.wallpaper) + 1) % wallpapers.length]; }
+function showPlayer() { state.playerVisible = true; state.device = state.device === 'mobile' ? 'mobile-player' : state.device; renderApp(); }
+
+function tvMarkup() {
+  return `<div class="app-scrim"></div><div class="screen">
+    <aside class="sidebar"><div class="brand"><i>▶</i> WebHTV</div>${navItems.map((item) => `<button class="nav-item" aria-current="${state.page === item ? 'page' : 'false'}" onclick="setPage('${item}')">${item}</button>`).join('')}</aside>
+    <main><header class="topbar"><strong>${state.page}</strong><span>深海剧场　⌁　20:26</span></header>
+      <div class="hero"><span class="eyebrow">继续观看</span><h1>在海风吹拂的夜晚</h1><p>线路 ${state.activeLine} · 字幕 ${state.playerSettings.subtitle} · 记忆上次观看进度。</p><button class="primary" onclick="showPlayer()">▶ 继续播放</button></div>
+      <div class="state-card"><small>设计画板 / TV</small><b>960 × 540</b><small>焦点：高亮填充、外扩描边与微光</small></div>
+    </main></div>`;
+}
+function mobileMarkup() {
+  return `<div class="app-scrim"></div><div class="screen mobile-screen"><header class="mobile-top"><strong>WebHTV</strong><span>20:26　◌</span></header><div class="search-box">⌕ 搜索电影、剧集、演员</div><section class="poster"><span class="eyebrow">继续观看</span><h1>在海风吹拂的夜晚</h1><p>更新至第 8 集 · ${state.activeLine}</p><button class="primary" onclick="showPlayer()">▶ 继续播放</button></section><div class="state-card"><small>设计画板 / 手机</small><b>540 × 960</b><small>${state.theme === 'dark' ? '深色电影感' : '浅色适配'} · ${state.wallpaper}</small></div><nav class="mobile-bottom">${mobileItems.map((item) => `<button aria-current="${state.page === item ? 'page' : 'false'}" onclick="setPage('${item}')">${item}</button>`).join('')}</nav></div>`;
+}
+function playerMarkup() {
+  return `<div class="screen player-screen"><header class="player-top"><b>在海风吹拂的夜晚 · 第 08 集</b><span>${state.activeLine}　⌄　✕</span></header><button class="player-center" aria-label="暂停">Ⅱ</button><footer class="player-bottom"><span>18:42 / 45:00</span><div class="progress"><i></i></div><button class="primary" onclick="state.playerVisible = !state.playerVisible; renderApp()">⚙ 设置</button></footer><aside class="player-settings" ${state.playerVisible ? '' : 'hidden'}><span class="eyebrow">播放设置</span>${Object.entries(state.playerSettings).map(([key,value]) => `<div class="setting"><span>${key}</span><b>${value}</b></div>`).join('')}<div class="setting"><span>线路</span><b>${state.activeLine}</b></div></aside></div>`;
+}
+function renderApp() {
+  const app = document.getElementById('app');
+  app.dataset.device = state.device;
+  app.dataset.theme = state.theme;
+  app.dataset.wallpaper = state.wallpaper;
+  app.innerHTML = state.device === 'mobile-player' ? playerMarkup() : state.device === 'mobile' ? mobileMarkup() : tvMarkup();
+  document.querySelectorAll('[data-device]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.device === state.device)));
+  document.getElementById('preview-label').textContent = `${dimensions[state.device]} · ${state.theme === 'dark' ? '深色' : '浅色'} · ${state.wallpaper}`;
+}
+function runSmokeCheck() {
+  const required = ['tv', 'mobile', 'mobile-player'];
+  const valid = required.every((mode) => document.querySelector(`[data-device="${mode}"]`));
+  console.assert(valid, 'device switcher is incomplete');
+  console.assert(typeof renderApp === 'function', 'renderApp is missing');
+}
+renderApp();
+</script>
+</body>
+</html>
