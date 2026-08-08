@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WebHTV · 双端 UI 原型</title>
+  <style>
+    :root {
+      --accent: #E7FF4D;
+      --ink: #f8fafc;
+      --muted: #a6b3c4;
+      --base: #070a10;
+      --surface-card: #16202c;
+      --surface-strong: #101821;
+      --dialog-bg: #111925;
+      --field-bg: #0b1119;
+      --surface-glass: rgba(18, 26, 37, .88);
+      --nav-bg: rgba(5, 8, 13, .94);
+      --line: rgba(255, 255, 255, .16);
+      --shadow: rgba(0, 0, 0, .68);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #020306; color: #f8fafc; font: 14px/1.45 -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
+    button { min-height: 34px; font: inherit; color: inherit; cursor: pointer; }
+    button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; box-shadow: 0 0 18px rgba(231, 255, 77, .45); }
+    .prototype-shell { min-height: 100vh; display: grid; place-items: center; align-content: center; padding: 28px; background: radial-gradient(circle at 50% 0, #243643, #070a10 48%, #020306); }
+    .control-deck { width: min(960px, 100%); display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .control-deck button, .ghost, .chip { border: 1px solid var(--line); border-radius: 999px; background: var(--surface-strong); padding: 8px 13px; }
+    .control-deck button[aria-pressed="true"], .primary { border-color: var(--accent); background: var(--accent); color: #11170a; font-weight: 800; box-shadow: 0 0 18px rgba(231, 255, 77, .25); }
+    .label { margin-left: auto; color: #cbd5e1; font-size: 12px; align-self: center; }
+    .coverage-panel { width: min(960px, 100%); margin-bottom: 12px; border: 1px solid rgba(255, 255, 255, .2); border-radius: 12px; background: #111925; }
+    .coverage-panel summary { padding: 10px 13px; cursor: pointer; font-weight: 800; }
+    .coverage-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 0 13px 13px; }
+    .coverage-group b { display: block; margin-bottom: 5px; }
+    .coverage-group button { min-height: 28px; margin: 2px; border: 1px solid rgba(255,255,255,.15); border-radius: 7px; background: #182332; padding: 4px 7px; color: #cbd5e1; font-size: 11px; }
+
+    #app { position: relative; overflow: hidden; width: 960px; height: 540px; border: 1px solid var(--line); border-radius: 18px; background: radial-gradient(circle at 75% 10%, rgba(23,65,84,.9), transparent 31%), var(--base); color: var(--ink); box-shadow: 0 30px 80px rgba(0,0,0,.72); }
+    #app[data-theme="light"] { --ink:#18212c; --muted:#526171; --base:#edf2f4; --surface-card:#f8fafc; --surface-strong:#ffffff; --dialog-bg:#ffffff; --field-bg:#f1f5f9; --surface-glass:rgba(255,255,255,.92); --nav-bg:rgba(248,250,252,.96); --line:rgba(12,31,48,.2); --shadow:rgba(16,24,40,.2); }
+    #app[data-wallpaper="neon-berry"] { background: radial-gradient(circle at 75% 8%, rgba(202,58,142,.8), transparent 34%), var(--base); }
+    #app[data-wallpaper="forest"] { background: radial-gradient(circle at 72% 8%, rgba(40,143,105,.8), transparent 34%), var(--base); }
+    #app[data-wallpaper="night-sky"] { background: radial-gradient(circle at 74% 8%, rgba(83,95,190,.8), transparent 34%), var(--base); }
+    #app[data-device="mobile"] { width: 540px; height: 960px; border-radius: 28px; }
+    #app[data-device="mobile-player"] { width: 960px; height: 540px; border-radius: 18px; }
+    .screen { height: 100%; display: flex; background: linear-gradient(rgba(7,10,16,.08), rgba(7,10,16,.32)); }
+    .sidebar { width: 156px; flex: none; padding: 21px 14px; background: var(--nav-bg); border-right: 1px solid var(--line); }
+    .brand { margin: 0 0 20px 8px; font-size: 16px; font-weight: 800; }
+    .brand i { display: inline-grid; place-items: center; width: 25px; height: 25px; margin-right: 7px; border-radius: 7px; background: var(--accent); color: #101609; font-style: normal; }
+    .nav-item { display: block; width: 100%; border: 0; border-radius: 9px; background: transparent; padding: 8px 10px; text-align: left; color: var(--muted); }
+    .nav-item[aria-current="page"], .nav-item.focus-model { background: rgba(231,255,77,.16); color: var(--ink); outline: 2px solid var(--accent); outline-offset: 1px; }
+    .desktop-main { flex: 1; min-width: 0; padding: 20px 28px; overflow: hidden; }
+    .topbar, .mobile-top, .section-title, .source-row, .mini-player { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .topbar-actions { display: flex; align-items: center; gap: 8px; }
+    .muted { color: var(--muted); }
+    .page-grid { display: grid; gap: 13px; margin-top: 16px; }
+    .page-grid h1 { margin: 4px 0; }
+    .hero { min-height: 210px; padding: 22px; border: 1px solid var(--line); border-radius: 17px; background: linear-gradient(90deg, var(--surface-strong), transparent), var(--surface-card); box-shadow: 0 12px 28px var(--shadow); }
+    .hero h1 { max-width: 450px; margin: 7px 0; font-size: 34px; line-height: 1.1; }
+    .hero p { max-width: 470px; color: var(--muted); }
+    .eyebrow { color: #a5b91d; font-size: 11px; font-weight: 900; letter-spacing: 1.3px; }
+    #app[data-theme="dark"] .eyebrow { color: var(--accent); }
+    .primary { margin-top: 8px; border: 1px solid var(--accent); border-radius: 9px; padding: 9px 14px; }
+    .section-title { font-weight: 800; }
+    .poster-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; }
+    .card { min-height: 84px; padding: 11px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-card); color: var(--ink); text-align: left; box-shadow: 0 8px 20px var(--shadow); }
+    .card b, .card small { display: block; }
+    .card small { margin-top: 5px; color: var(--muted); }
+    .filters, .line-tabs, .action-row { display: flex; gap: 7px; flex-wrap: wrap; }
+    .chip { padding: 6px 10px; color: var(--muted); }
+    .chip.active { color: #101609; background: var(--accent); border-color: var(--accent); }
+    .content-layout { display: grid; grid-template-columns: 150px 1fr; gap: 13px; }
+    .side-list, .schedule, .detail-info, .setting-card, .tool-card, .state-card { padding: 12px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface-glass); box-shadow: 0 8px 20px var(--shadow); }
+    .side-list button { display: block; width: 100%; border: 0; border-radius: 7px; background: transparent; padding: 7px; text-align: left; color: var(--muted); }
+    .search-entry { width: 100%; min-height: 43px; border: 1px solid var(--accent); border-radius: 10px; background: var(--field-bg); padding: 11px; color: var(--ink); text-align: left; }
+    .search-input { width: 100%; border: 1px solid var(--accent); border-radius: 10px; background: var(--field-bg); padding: 12px; color: var(--ink); }
+    .detail-layout { display: grid; grid-template-columns: 1.12fr .88fr; gap: 13px; }
+    .player-preview { min-height: 215px; display: grid; place-items: center; border-radius: 15px; background: var(--surface-card); font-size: 30px; }
+    .detail-info h1 { font-size: 24px; }
+    .settings-panel { position: absolute; top: 66px; right: 18px; z-index: 5; width: 250px; max-height: 440px; overflow: auto; padding: 14px; border: 2px solid var(--accent); border-radius: 13px; background: var(--surface-strong); color: var(--ink); box-shadow: 0 14px 35px var(--shadow); }
+    .settings-panel[hidden] { display: none; }
+    .setting { display: flex; justify-content: space-between; gap: 12px; width: 100%; padding: 8px 0; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--muted); text-align: left; }
+    .setting b { color: var(--ink); }
+    .settings-grid, .tools-grid, .states-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .wallpapers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; }
+    .wallpaper { height: 64px; border: 1px solid var(--line); border-radius: 10px; background: linear-gradient(135deg,#16465a,#091018); color: #fff; }
+    .wallpaper[data-wallpaper="neon-berry"] { background: linear-gradient(135deg,#ba357f,#31102b); }
+    .wallpaper[data-wallpaper="forest"] { background: linear-gradient(135deg,#2c8c68,#0c2719); }
+    .wallpaper[data-wallpaper="night-sky"] { background: linear-gradient(135deg,#4d57a3,#141839); }
+    .wallpaper.active { outline: 3px solid var(--accent); outline-offset: 2px; }
+    .my-menu { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
+    .my-menu button { min-height: 66px; padding: 11px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface-card); text-align: left; }
+    .my-menu span { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
+    .source-row { padding: 9px 0; border-bottom: 1px solid var(--line); }
+    .source-actions { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
+    .source-actions button { min-height: 28px; padding: 4px 8px; }
+    .health { display: inline-block; margin-left: 6px; padding: 2px 6px; border-radius: 999px; background: rgba(45,190,120,.18); color: #147447; font-size: 11px; }
+    #app[data-theme="dark"] .health { color: #82efb4; }
+    .dialog-backdrop { position: absolute; inset: 0; z-index: 9; display: grid; place-items: center; padding: 24px; background: rgba(0,0,0,.66); }
+    .dialog { width: min(380px, 100%); padding: 18px; border: 2px solid var(--accent); border-radius: 16px; background: var(--dialog-bg); color: var(--ink); box-shadow: 0 22px 60px var(--shadow); }
+    .dialog h2 { margin: 0 0 10px; }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+    .progress-value { height: 8px; margin: 14px 0; border-radius: 999px; background: rgba(127,137,150,.25); }
+    .progress-value i { display: block; width: 64%; height: 100%; border-radius: inherit; background: var(--accent); }
+
+    .mobile-screen { position: relative; flex-direction: column; padding: 22px 18px 92px; background: linear-gradient(rgba(7,10,16,.08), rgba(7,10,16,.24)); }
+    .mobile-content { overflow: auto; flex: 1; }
+    .mobile-top strong { font-size: 19px; }
+    .mobile-search { margin-top: 12px; }
+    .mobile-screen .poster-row { grid-template-columns: repeat(2, 1fr); }
+    .mobile-screen .content-layout, .mobile-screen .detail-layout, .mobile-screen .settings-grid, .mobile-screen .tools-grid, .mobile-screen .states-grid { grid-template-columns: 1fr; }
+    .mobile-screen .hero { min-height: 215px; }
+    .mobile-bottom { position: absolute; right: 0; bottom: 0; left: 0; display: flex; justify-content: space-around; padding: 12px 5px 16px; border-top: 1px solid var(--line); background: var(--nav-bg); }
+    .mobile-bottom button { border: 0; background: transparent; color: var(--muted); font-size: 11px; }
+    .mobile-bottom button[aria-current="page"] { color: #778500; font-weight: 900; }
+    #app[data-theme="dark"] .mobile-bottom button[aria-current="page"] { color: var(--accent); }
+    .mobile-screen .settings-panel { top: auto; right: 0; bottom: 0; left: 0; width: auto; max-height: 52%; padding: 20px; border-radius: 20px 20px 0 0; }
+    .mini-player { position: absolute; right: 12px; bottom: 70px; left: 12px; z-index: 4; padding: 9px 12px; border: 1px solid var(--accent); border-radius: 12px; background: var(--surface-strong); box-shadow: 0 10px 25px var(--shadow); }
+    .mini-player button { min-height: 30px; }
+
+    .player-screen { position: relative; display: flex; flex-direction: column; height: 100%; padding: 18px 24px; background: linear-gradient(120deg,#091018,#092b38); color: #f8fafc; }
+    .player-top, .player-actions, .player-progress, .player-tools { display: flex; align-items: center; gap: 12px; }
+    .player-top, .player-tools { justify-content: space-between; }
+    .player-title b, .player-title span { display: block; }
+    .player-stage { flex: 1; display: grid; place-items: center; border-radius: 16px; }
+    .gesture-surface { cursor: pointer; user-select: none; }
+    .play-cluster { display: flex; align-items: center; gap: 28px; }
+    .round-control { width: 52px; height: 52px; border: 1px solid rgba(255,255,255,.22); border-radius: 50%; background: rgba(16,26,36,.85); font-size: 18px; }
+    .round-control.main { width: 70px; height: 70px; border-color: var(--accent); background: var(--accent); color: #101609; font-size: 27px; }
+    .player-bottom { display: grid; gap: 10px; }
+    .player-screen.osd-hidden .player-top, .player-screen.osd-hidden .player-bottom { opacity: 0; pointer-events: none; }
+    .progress-track { height: 5px; flex: 1; border-radius: 99px; background: rgba(255,255,255,.25); }
+    .progress-track i { display: block; width: 38%; height: 100%; border-radius: inherit; background: var(--accent); }
+    .gesture-toast { position: absolute; top: 45%; left: 50%; transform: translate(-50%,-50%); padding: 8px 13px; border-radius: 99px; background: rgba(0,0,0,.72); }
+    .audio-player { background: linear-gradient(160deg,#0c1b27,#16384a 62%,#080d13); }
+    .audio-player .player-stage { grid-template-columns: 1fr; align-content: center; gap: 18px; text-align: center; }
+    .audio-cover { width: 210px; height: 210px; display: grid; place-items: center; margin: auto; border-radius: 24px; background: linear-gradient(135deg,#c6d84e,#205168 65%,#0c1720); font-size: 48px; box-shadow: 0 20px 45px rgba(0,0,0,.5); }
+    .audio-meta h1 { margin: 6px 0; font-size: 28px; }
+    .audio-queue { display: grid; gap: 6px; max-width: 390px; margin: 12px auto 0; }
+    .audio-queue span { padding: 6px; border-bottom: 1px solid rgba(255,255,255,.14); color: #cbd5e1; }
+    #app[data-device="mobile"] .audio-player { padding: 26px 22px; }
+    #app[data-device="mobile"] .audio-player .audio-cover { width: 260px; height: 260px; }
+    #app[data-device="mobile"] .audio-player .player-stage { align-content: start; padding-top: 70px; }
+
+    @media (max-width: 1000px) {
+      .prototype-shell { align-content: start; overflow: auto; }
+      #app { transform: scale(calc((100vw - 32px) / 960)); transform-origin: top center; margin-bottom: calc(-540px + ((100vw - 32px) / 960 * 540px)); }
+      #app[data-device="mobile"] { transform: scale(calc((100vw - 32px) / 540)); margin-bottom: calc(-960px + ((100vw - 32px) / 540 * 960px)); }
+    }
+    @media (max-width: 680px) { .coverage-grid { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+  <div class="prototype-shell">
+    <nav class="control-deck" aria-label="原型预览设备">
+      <button type="button" data-device="tv">TV · 960 × 540</button>
+      <button type="button" data-device="mobile">手机 · 540 × 960</button>
+      <button type="button" data-device="mobile-player">手机全屏播放器 · 960 × 540</button>
+      <span class="label" id="preview-label"></span>
+    </nav>
+    <details class="coverage-panel">
+      <summary>页面覆盖与现有能力映射（每项可达）</summary>
+      <div class="coverage-grid">
+        <section class="coverage-group"><b>发现 / 详情</b>
+          <button data-coverage="tmdb-detail" data-page="detail" data-variant="tmdb">TMDB 详情</button>
+          <button data-coverage="person-detail" data-page="detail-variant" data-variant="person">人物页</button>
+          <button data-coverage="web-theme-detail" data-page="detail-variant" data-variant="web-theme">Web 主题详情</button>
+          <button data-coverage="episodes" data-page="episodes">选集 / 集详情</button>
+        </section>
+        <section class="coverage-group"><b>播放 / 直播 / 音频</b>
+          <button data-page="detail">视频 / OSD / 设置</button><button data-page="live">频道 / EPG / 时移</button><button data-page="my">音频 / 队列 / Mini Player</button>
+        </section>
+        <section class="coverage-group"><b>个人媒体 / 工具</b>
+          <button data-coverage="keep" data-page="favorites" data-variant="keep">Keep / 稍后看</button>
+          <button data-coverage="viewing-report" data-page="report">观看报告</button>
+          <button data-coverage="cast-push-scan-receive-device" data-page="tools">投屏 / 推送 / 扫码 / 接收 / 设备</button>
+          <button data-coverage="empty-error-network" data-page="states">空 / 错误 / 无网络</button>
+        </section>
+        <section class="coverage-group"><b>设置 / 维护</b>
+          <button data-page="settings">播放 / 字幕 / 弹幕 / 增强</button><button data-page="sources">源 / 健康 / 策略</button>
+          <button data-coverage="maintenance-update-restore-health" data-page="maintenance">更新 / 恢复 / 站点健康</button>
+        </section>
+      </div>
+    </details>
+    <section id="app" aria-live="polite"></section>
+  </div>
+<script>
+const settingDefinitions = [
+  ['subtitle', '字幕', ['中文 · 自动', '中文', '关闭']],
+  ['danmaku', '弹幕', ['开启', '关闭']],
+  ['aspect', '画面', ['原始比例', '填满', '16:9']],
+  ['speed', '倍速', ['1.0×', '1.5×', '2.0×']],
+  ['quality', '清晰度', ['4K · 自动', '1080P', '蓝光']],
+];
+const state = {
+  device: 'tv', page: 'home', previousPage: 'home', theme: 'dark', wallpaper: 'deep-sea',
+  activeLine: '线路 A', playerVisible: false, playerKind: 'vod', settingsVisible: false,
+  returnDevice: 'tv', returnPage: 'home', dialog: null, focusIndex: 0, osdVisible: true,
+  gestureMessage: '', gestureStartedAt: 0, longPressActive: false, audioMiniVisible: false,
+  settingsSection: 'personalize', coverageVariant: '', sourceManager: null,
+  sourceStrategy: '自动选择最佳健康源', defaultSources: { vod: 'vod-a', live: 'live-a' },
+  sources: {
+    vod: [
+      { id: 'vod-a', name: '海风点播', enabled: true, health: '健康 · 42ms' },
+      { id: 'vod-b', name: '星河影视', enabled: true, health: '健康 · 68ms' },
+      { id: 'vod-c', name: '家庭媒体库', enabled: false, health: '离线演示' },
+    ],
+    live: [
+      { id: 'live-a', name: '家庭直播', enabled: true, health: '健康 · 31ms' },
+      { id: 'live-b', name: '体育频道组', enabled: true, health: '健康 · 77ms' },
+    ],
+  },
+  playerSettings: { subtitle: '中文 · 自动', danmaku: '开启', aspect: '原始比例', speed: '1.0×', quality: '4K · 自动' },
+};
+const tvNav = [['home','首页'],['search','搜索'],['vod','点播'],['live','直播'],['favorites','收藏'],['history','历史'],['files','文件'],['settings','设置']];
+const mobileNav = [['home','首页'],['vod','点播'],['live','直播'],['favorites','收藏'],['profile','我的']];
+const artboards = {
+  tv: { width: 960, height: 540, label: 'TV 常规页' },
+  mobile: { width: 540, height: 960, label: '手机常规页 / 音频' },
+  'mobile-player': { width: 960, height: 540, label: '手机全屏视频 / 直播' },
+};
+
+function updateState(patch) { Object.assign(state, patch); renderApp(); }
+function setDevice(device) {
+  updateState({ device, playerVisible: device === 'mobile-player', playerKind: 'vod', returnDevice: device === 'mobile-player' ? 'mobile' : device, settingsVisible: false, dialog: null });
+}
+function setPage(page, extra = {}) { updateState({ previousPage: state.page, page, playerVisible: false, settingsVisible: false, dialog: null, sourceManager: null, ...extra }); }
+function setTheme(theme) { updateState({ theme }); }
+function setWallpaper(wallpaper) { updateState({ wallpaper }); }
+function setPlayerSetting(key, value) { updateState({ playerSettings: { ...state.playerSettings, [key]: value } }); }
+function setActiveLine(activeLine) { updateState({ activeLine }); }
+function setDialog(dialog) { updateState({ dialog }); }
+function closeDialog() { updateState({ dialog: null }); }
+function togglePlayerSettings() { updateState({ settingsVisible: !state.settingsVisible }); }
+function openPlayer(playerKind) {
+  const landscape = state.device === 'mobile' && playerKind !== 'audio';
+  updateState({ playerVisible: true, playerKind, returnDevice: state.device, returnPage: state.page, device: landscape ? 'mobile-player' : state.device, osdVisible: true, gestureMessage: '' });
+}
+function closePlayer() { updateState({ playerVisible: false, device: state.returnDevice, page: state.returnPage, gestureMessage: '', longPressActive: false }); }
+function minimizeAudio() { updateState({ playerVisible: false, device: state.returnDevice, page: state.returnPage, settingsVisible: false, audioMiniVisible: true }); }
+function cycleSetting(key) {
+  const definition = settingDefinitions.find(([settingKey]) => settingKey === key);
+  if (!definition) return;
+  const values = definition[2];
+  const next = values[(values.indexOf(state.playerSettings[key]) + 1) % values.length];
+  setPlayerSetting(key, next);
+}
+function updateSources(kind, transform, extra = {}) { updateState({ sources: { ...state.sources, [kind]: transform(state.sources[kind]) }, ...extra }); }
+function toggleSource(id) { const kind = state.sourceManager; updateSources(kind, (sources) => sources.map((source) => source.id === id ? { ...source, enabled: !source.enabled } : source)); }
+function addSource() { const kind = state.sourceManager; const number = state.sources[kind].length + 1; updateSources(kind, (sources) => [...sources, { id: `${kind}-mock-${number}`, name: `本地演示源 ${number}`, enabled: true, health: '健康 · 55ms' }]); }
+function removeSource(id) { const kind = state.sourceManager; const remaining = state.sources[kind].filter((source) => source.id !== id); const defaults = state.defaultSources[kind] === id ? { ...state.defaultSources, [kind]: remaining[0]?.id || '' } : state.defaultSources; updateSources(kind, () => remaining, { defaultSources: defaults }); }
+function makeDefaultSource(id) { updateState({ defaultSources: { ...state.defaultSources, [state.sourceManager]: id } }); }
+function cycleSourceStrategy() { updateState({ sourceStrategy: state.sourceStrategy === '自动选择最佳健康源' ? '优先默认源，失败后回退' : '自动选择最佳健康源' }); }
+
+function mobileSearchEntry() { return state.device === 'mobile' ? '<button class="search-entry mobile-search" data-action="open-search">⌕ 搜索电影、剧集、演员</button>' : ''; }
+function cards(names) { return `<div class="poster-row">${names.map((name, index) => `<button class="card" data-action="open-detail" data-focusable><b>${name}</b><small>${['电影 · 2026','更新至第 8 集',`热播榜 #${index + 1}`,'4K 杜比视界'][index % 4]}</small></button>`).join('')}</div>`; }
+function renderHome() { return `<section class="page-grid" data-page-view="home">${mobileSearchEntry()}<div class="hero"><span class="eyebrow">继续观看</span><h1>在海风吹拂的夜晚</h1><p>第 08 集 · 18:42 · ${state.activeLine} · ${state.playerSettings.quality}</p><button class="primary" data-action="open-detail" data-focusable>▶ 继续播放</button></div><div><div class="section-title"><span>为你推荐</span><span class="muted">查看全部</span></div>${cards(['无声浪潮','弥留之城','夜航船','晴天归来'])}</div></section>`; }
+function renderVod() { return `<section class="page-grid" data-page-view="vod">${mobileSearchEntry()}<div class="section-title"><span>点播 · 分类与筛选</span><span class="muted">18,426 部</span></div><div class="filters"><button class="chip active">全部</button><button class="chip">电影</button><button class="chip">剧集</button><button class="chip">4K</button></div>${cards(['夏日光年','迷雾追踪','海岸线','星际候鸟','旷野之歌','旧日回声','黑曜计划','白昼梦境'])}</section>`; }
+function renderLive() { return `<section class="page-grid" data-page-view="live"><div class="section-title"><span>直播 · 频道 / 分组 / EPG</span><span class="muted">128 个频道</span></div><div class="content-layout"><aside class="side-list"><button>推荐</button><button>央视频道</button><button>卫视</button><button>体育</button></aside><div class="hero"><span class="eyebrow">CCTV-6 电影</span><h1>经典影展</h1><p>节目单：20:00 光影长廊 · 21:45 午夜首映 · 支持时移</p><button class="primary" data-action="play-live">▶ 进入频道</button></div></div></section>`; }
+function renderSearch() { return `<section class="page-grid" data-page-view="search"><input class="search-input" aria-label="搜索" value="海风"><div class="content-layout"><aside class="side-list"><b>历史 / 热词</b><button>夜航船</button><button>无声浪潮</button></aside><div>${cards(['在海风吹拂的夜晚','海边的卡夫卡','海洋之歌','海街日记'])}</div></div></section>`; }
+function renderPlayerSettings(context) { return `<aside class="settings-panel player-setting-panel" data-settings-context="${context}" ${state.settingsVisible ? '' : 'hidden'}><span class="eyebrow">详情与播放器共享设置</span>${settingDefinitions.map(([key,label]) => `<button class="setting" data-setting="${key}"><span>${label}</span><b>${state.playerSettings[key]}</b></button>`).join('')}<button class="setting" data-action="switch-line"><span>当前线路</span><b>${state.activeLine}</b></button></aside>`; }
+function renderDetail() { const variant = state.coverageVariant === 'tmdb' ? 'TMDB 资料详情' : '影视详情'; return `<section class="page-grid" data-page-view="detail"><div class="detail-layout"><div class="player-preview">▶</div><div class="detail-info"><span class="eyebrow">${variant} · 剧情 · 2026</span><h1>在海风吹拂的夜晚</h1><p class="muted">封面、简介、演员与相关推荐共用详情模板。</p><div class="action-row"><button class="primary" data-action="play">▶ 播放</button><button class="ghost">♡ 收藏</button><button class="ghost">↗ 分享</button></div></div></div><div class="line-tabs"><button class="chip ${state.activeLine === '线路 A' ? 'active' : ''}" data-action="switch-line">线路 A</button><button class="chip ${state.activeLine === '线路 B' ? 'active' : ''}" data-action="switch-line">线路 B</button><button class="ghost" data-action="open-player-settings">⚙ 播放设置</button><button class="ghost" data-page="episodes">选集</button></div><div class="muted">${settingDefinitions.map(([key,label]) => `${label}：${state.playerSettings[key]}`).join(' · ')} · 当前线路：${state.activeLine}</div>${renderPlayerSettings('detail')}</section>`; }
+function renderDetailVariant() { const person = state.coverageVariant === 'person'; return `<section class="page-grid" data-page-view="detail-variant"><div class="hero"><span class="eyebrow">${person ? 'TMDB 人物页' : 'Web 主题详情'}</span><h1>${person ? '林海 · 演员 / 导演' : '午夜电影专题'}</h1><p>${person ? '人物资料、代表作品与相关影片轨。' : '站点主题资料、专题简介与作品轨。'}</p></div>${cards(['海风来信','纸月亮','旧日回声','星河旅人'])}</section>`; }
+function renderEpisodes() { return `<section class="page-grid" data-page-view="episodes"><div class="section-title"><span>选集 / 集详情</span><button class="ghost" data-page="detail">返回详情</button></div><div class="settings-grid">${Array.from({length:8},(_,i)=>`<button class="setting-card"><b>第 ${String(i+1).padStart(2,'0')} 集</b><span class="muted">${i===7?'播放至 18:42':'46 分钟 · 已看完'}</span></button>`).join('')}</div></section>`; }
+function renderFavorites() { return `<section class="page-grid" data-page-view="favorites"><div class="section-title"><span>${state.coverageVariant === 'keep' ? 'Keep / 稍后看' : '我的收藏'}</span><span class="muted">点播 · 直播 · 音频分组</span></div>${cards(['无声浪潮','夜航船','纸月亮','海边的卡夫卡'])}</section>`; }
+function renderHistory() { return `<section class="page-grid" data-page-view="history"><div class="section-title"><span>观看历史 · 继续 / 已完结</span><button class="ghost" data-action="open-dialog" data-dialog="confirm">批量清除</button></div><div class="schedule"><p>在海风吹拂的夜晚 · 续播 18:42</p><p>迷雾追踪 · 已看完</p><p>经典影展 · 直播回看</p></div></section>`; }
+function renderFiles() { return `<section class="page-grid" data-page-view="files"><div class="section-title"><span>文件 / 文件夹</span><button class="ghost" data-action="open-dialog" data-dialog="list">选择媒体库</button></div><div class="schedule"><p>本地 / Downloads</p><p>SMB / 家庭 NAS</p><p>网盘 / 离线演示</p></div></section>`; }
+function renderMy() { return `<section class="page-grid" data-page-view="my"><div><span class="eyebrow">个人媒体与工具</span><h1>我的空间</h1></div><div class="my-menu"><button data-page="history">观看历史<span>继续观看 / 已看完</span></button><button data-page="report">观看报告<span>本周 6 小时 42 分</span></button><button data-page="files">本地文件<span>NAS 与下载内容</span></button><button data-action="play-audio">音频播放<span>竖屏封面 / 队列 / 评论</span></button><button data-page="tools">扫码 / 投屏 / 推送<span>接收与设备选择</span></button><button data-page="settings">设置<span>个性化与播放偏好</span></button></div></section>`; }
+function renderReport() { return `<section class="page-grid" data-page-view="report"><div class="section-title"><span>观看报告</span><span class="muted">近 7 天</span></div><div class="settings-grid"><div class="setting-card"><b>6 小时 42 分</b><p class="muted">总观看时长</p></div><div class="setting-card"><b>剧情 · 42%</b><p class="muted">最常观看</p></div></div><div class="progress-value"><i></i></div></section>`; }
+function renderTools() { return `<section class="page-grid" data-page-view="tools"><div class="section-title"><span>外部协同工具</span><span class="muted">统一设备与反馈面板</span></div><div class="tools-grid">${['扫码连接','投屏','推送 / APK Push','接收','设备管理','成功 / 失败反馈'].map((item,index)=>`<button class="tool-card" data-action="open-dialog" data-dialog="${index===5?'info':'device'}"><b>${item}</b><p class="muted">${index===0?'二维码与同网段连接':'打开本地演示流程'}</p></button>`).join('')}</div></section>`; }
+function renderStates() { return `<section class="page-grid" data-page-view="states"><div class="section-title"><span>异常与空状态模板</span><span class="muted">一个主操作 + 可选次操作</span></div><div class="states-grid"><div class="state-card"><b>暂无内容</b><p class="muted">收藏内容后会显示在这里。</p><button class="primary" data-page="home">去发现</button></div><div class="state-card"><b>网络不可用</b><p class="muted">检查网络或使用本地媒体。</p><button class="primary" data-action="open-dialog" data-dialog="info">重试 / 详情</button></div><div class="state-card"><b>加载失败</b><p class="muted">保留错误详情与重试路径。</p></div></div></section>`; }
+const settingsSections = {
+  playback: ['播放','自动连播','记住进度','默认清晰度'], subtitle: ['字幕与弹幕','字幕语言','弹幕密度','样式'],
+  enhance: ['增强','硬件解码','音画同步','减少动效'], sync: ['数据与同步','远程信任','配置同步','备份'], about: ['关于','版本 3.2.0','开源许可','检查更新'],
+};
+function renderSettings() { const items = [['personalize','个性化','主题、壁纸与焦点'],['playback','播放','播放与清晰度'],['subtitle','字幕与弹幕','语言、样式与密度'],['enhance','增强','解码与动效'],['sources','内容源','点播源、直播源与策略'],['sync','数据与同步','备份与远程信任'],['about','关于','版本与更新']]; return `<section class="page-grid" data-page-view="settings"><div class="section-title"><span>设置</span><span class="muted">${state.device === 'tv' ? 'TV 双栏设置中心' : '手机分组设置'}</span></div><div class="settings-grid">${items.map(([section,label,description])=>`<div class="setting-card"><b>${label}</b><button class="setting" data-action="open-settings-section" data-section="${section}"><span>${description}</span><b>›</b></button></div>`).join('')}</div></section>`; }
+function renderSettingsSection() { const [title,...rows] = settingsSections[state.settingsSection] || settingsSections.playback; return `<section class="page-grid" data-page-view="settings-section" data-settings-section="${state.settingsSection}"><div class="section-title"><span>${title}</span><button class="ghost" data-page="settings">返回设置</button></div><div class="setting-card">${rows.map((row,index)=>`<button class="setting" data-action="open-dialog" data-dialog="${index===0?'list':'nested'}"><span>${row}</span><b>›</b></button>`).join('')}</div></section>`; }
+function renderPersonalize() { const wallpapers=[['deep-sea','深海'],['neon-berry','霓虹莓果'],['forest','森林'],['night-sky','星夜']]; return `<section class="page-grid" data-page-view="personalize"><div class="section-title"><span>个性化 · 全应用即时生效</span><button class="ghost" data-page="settings">返回设置</button></div><div class="setting-card"><b>主题</b><div class="filters"><button class="chip ${state.theme==='dark'?'active':''}" data-theme="dark">深色</button><button class="chip ${state.theme==='light'?'active':''}" data-theme="light">浅色</button></div></div><div class="setting-card"><b>壁纸</b><div class="wallpapers">${wallpapers.map(([id,label])=>`<button class="wallpaper ${state.wallpaper===id?'active':''}" data-wallpaper="${id}">${label}</button>`).join('')}</div></div></section>`; }
+function renderSources() { if (state.sourceManager) return renderSourceManager(); return `<section class="page-grid" data-page-view="sources"><div class="section-title"><span>内容源 · 全局管理</span><button class="ghost" data-page="settings">返回设置</button></div><div class="schedule"><div class="source-row"><span><b>点播源管理</b><br><small class="muted">${state.sources.vod.filter(source=>source.enabled).length} 个启用 · 默认 ${state.defaultSources.vod}</small></span><button class="ghost" data-action="manage-sources" data-source-kind="vod">管理</button></div><div class="source-row"><span><b>直播源管理</b><br><small class="muted">${state.sources.live.filter(source=>source.enabled).length} 个启用 · 默认 ${state.defaultSources.live}</small></span><button class="ghost" data-action="manage-sources" data-source-kind="live">管理</button></div><div class="source-row"><span><b>默认线路策略</b><br><small class="muted">${state.sourceStrategy}</small></span><button class="ghost" data-action="cycle-source-strategy">切换策略</button></div></div></section>`; }
+function renderSourceManager() { const kind=state.sourceManager; const title=kind==='vod'?'点播源管理':'直播源管理'; return `<section class="page-grid" data-page-view="sources" data-source-manager="${kind}"><div class="section-title"><span>${title} · 本地可变演示状态</span><div class="action-row"><button class="primary" data-action="add-source">＋ 添加本地演示源</button><button class="ghost" data-action="close-source-manager">返回</button></div></div><div class="schedule">${state.sources[kind].map(source=>`<div class="source-row"><span><b>${source.name}</b>${state.defaultSources[kind]===source.id?' · 默认':''}<small class="health">${source.health}</small><br><small class="muted">${source.enabled?'已启用':'已停用'} · ${source.id}</small></span><span class="source-actions"><button class="ghost" data-action="toggle-source" data-source-id="${source.id}">${source.enabled?'停用':'启用'}</button><button class="ghost" data-action="make-default-source" data-source-id="${source.id}">设默认</button><button class="ghost" data-action="remove-source" data-source-id="${source.id}">移除</button></span></div>`).join('')}<div class="source-row"><span><b>线路策略</b><br><small class="muted">${state.sourceStrategy}</small></span><button class="ghost" data-action="cycle-source-strategy">切换</button></div></div></section>`; }
+function renderMaintenance() { return `<section class="page-grid" data-page-view="maintenance"><div class="section-title"><span>维护与异常</span><span class="muted">设置 / 系统维护</span></div><div class="settings-grid">${[['更新','progress'],['恢复与备份','confirm'],['站点健康','info'],['广告规则 / 统计','nested'],['同步 / 远程信任','device'],['缓冲 / 崩溃详情','info']].map(([label,dialog])=>`<button class="setting-card" data-action="open-dialog" data-dialog="${dialog}"><b>${label}</b><p class="muted">打开统一信息、确认或进度模板</p></button>`).join('')}</div></section>`; }
+function renderDialog(type) { if (!type) return ''; const content={list:'<h2>选择列表</h2><button class="setting"><span>主选项 · 推荐</span><b>✓</b></button><button class="setting"><span>备用选项</span><b>›</b></button>',nested:'<h2>多级设置</h2><button class="setting"><span>高级选项</span><b>自动 ›</b></button><button class="setting"><span>失败回退</span><b>已开启 ›</b></button>',confirm:'<h2>确认操作</h2><p class="muted">此原型只更新本地演示状态，不会删除真实数据。</p>',info:'<h2>信息 / 错误详情</h2><p class="muted">提供重试、查看详情与返回路径。</p><div class="progress-value"><i></i></div>',progress:'<h2>信息 / 进度</h2><p class="muted">正在执行离线演示任务 · 64%</p><div class="progress-value"><i></i></div>',device:'<h2>设备选择</h2><button class="setting"><span>客厅 TV</span><b>已连接</b></button><button class="setting"><span>卧室屏幕</span><b>›</b></button>'}[type]||''; return `<div class="dialog-backdrop" role="dialog" aria-modal="true" data-dialog-template="${type}"><div class="dialog">${content}<div class="dialog-actions">${type==='confirm'?'<button class="primary" data-action="confirm-dialog">确认</button>':''}<button class="ghost" data-action="close-dialog">关闭 / 返回</button></div></div></div>`; }
+function renderPlayer(kind) { const live=kind==='live'; const audio=kind==='audio'; if (audio) return `<section class="player-screen audio-player" data-player-kind="audio"><header class="player-top"><div class="player-title"><b>海风的回声</b><span>岛屿电台 · 竖屏音频</span></div><button class="ghost" data-action="minimize-audio">最小化</button></header><main class="player-stage"><div class="audio-cover">♫</div><div class="audio-meta"><span class="eyebrow">正在播放</span><h1>海风的回声</h1><p>评论 / 歌词 · 定时关闭 30 分钟</p><div class="audio-queue"><span>01 海风的回声</span><span>02 旧信</span><span>03 归途</span></div></div></main><footer class="player-tools"><span>队列 · 评论 · 定时</span><button class="ghost" data-action="open-player-settings">⚙ 设置</button></footer>${renderPlayerSettings('player')}</section>`; const controls=live?'频道 · 节目单 · 时移 · 收藏':`选集 · ${state.playerSettings.subtitle} · 弹幕 ${state.playerSettings.danmaku} · ${state.playerSettings.speed} · ${state.playerSettings.quality}`; return `<section class="player-screen ${state.osdVisible?'':'osd-hidden'}" data-player-kind="${kind}"><header class="player-top"><div class="player-title"><b>${live?'CCTV-6 · 经典影展':'在海风吹拂的夜晚'}</b><span>${live?'直播中 · 20:26':'第 08 集 · 18:42 / 46:00'}</span></div><button class="ghost" data-action="close-player">退出全屏</button></header><main class="player-stage gesture-surface" data-gesture-surface><div class="play-cluster"><button class="round-control">↶ 10</button><button class="round-control main">Ⅱ</button><button class="round-control">10 ↷</button></div></main>${state.gestureMessage?`<div class="gesture-toast">${state.gestureMessage}</div>`:''}<footer class="player-bottom"><div class="player-progress"><span>18:42</span><div class="progress-track"><i></i></div><span>${live?'正在直播':'46:00'}</span></div><div class="player-tools"><span>${controls}</span><div class="action-row"><button class="ghost" data-action="switch-line">${state.activeLine}</button><button class="ghost" data-action="open-player-settings">⚙ 设置</button></div></div></footer>${renderPlayerSettings('player')}</section>`; }
+function renderMiniPlayer() { return state.audioMiniVisible && state.device==='mobile' ? '<aside class="mini-player" data-mini-player="audio"><span><b>♫ 海风的回声</b><small class="muted"> · 18:42</small></span><span><button class="ghost" data-action="restore-audio">展开</button><button class="ghost" data-action="dismiss-mini-audio">×</button></span></aside>' : ''; }
+function renderPage() { const pages={home:renderHome,vod:renderVod,live:renderLive,search:renderSearch,detail:renderDetail,'detail-variant':renderDetailVariant,episodes:renderEpisodes,profile:renderMy,my:renderMy,favorites:renderFavorites,history:renderHistory,files:renderFiles,report:renderReport,tools:renderTools,states:renderStates,settings:renderSettings,'settings-section':renderSettingsSection,personalize:renderPersonalize,sources:renderSources,maintenance:renderMaintenance}; return (pages[state.page]||renderHome)(); }
+function renderNavigation() { const items=state.device==='tv'?tvNav:mobileNav; const className=state.device==='tv'?'sidebar':'mobile-bottom'; return `<nav class="${className}" aria-label="主导航">${state.device==='tv'?'<div class="brand"><i>▶</i>WebHTV</div>':''}${items.map(([page,label],index)=>`<button class="${state.device==='tv'?'nav-item':''} ${state.device==='tv'&&state.focusIndex===index?'focus-model':''}" data-page="${page}" data-focusable aria-current="${state.page===page?'page':'false'}">${label}</button>`).join('')}</nav>`; }
+function renderApp() { const app=document.getElementById('app'); const artboard=artboards[state.device]; app.dataset.device=state.device; app.dataset.theme=state.theme; app.dataset.wallpaper=state.wallpaper; app.dataset.designWidthInDp=String(artboard.width); app.dataset.designHeightInDp=String(artboard.height); app.dataset.focusIndex=String(state.focusIndex); if (state.playerVisible) app.innerHTML=renderPlayer(state.playerKind); else if (state.device==='tv') app.innerHTML=`<div class="screen">${renderNavigation()}<main class="desktop-main"><header class="topbar"><strong>${state.page}</strong><span class="topbar-actions"><button class="ghost" data-action="wallpaper-shortcut">▧ 壁纸</button><span class="muted">深海剧场 · 20:26</span></span></header>${renderPage()}</main></div>${renderDialog(state.dialog)}`; else app.innerHTML=`<div class="screen mobile-screen"><header class="mobile-top"><strong>WebHTV</strong><span class="muted">20:26 · ◌</span></header><main class="mobile-content">${renderPage()}</main>${renderMiniPlayer()}${renderNavigation()}</div>${renderDialog(state.dialog)}`; document.querySelectorAll('[data-device]').forEach((button)=>button.setAttribute('aria-pressed',String(button.dataset.device===state.device))); document.getElementById('preview-label').textContent=`${artboard.label} · design_width_in_dp=${artboard.width} · design_height_in_dp=${artboard.height} · ${state.theme==='dark'?'深色':'浅色'}`; }
+function handleBack() { if (state.dialog) return closeDialog(); if (state.settingsVisible) return updateState({settingsVisible:false}); if (state.sourceManager) return updateState({sourceManager:null}); if (state.playerVisible) return closePlayer(); if (state.page!=='home') return setPage(state.previousPage!==state.page?state.previousPage:'home'); setDialog('confirm'); }
+function runSmokeCheck() { ['tv','mobile','mobile-player'].forEach((mode)=>console.assert(document.querySelector(`[data-device="${mode}"]`),`missing ${mode}`)); return 'smoke check complete'; }
+function runPageSmokeCheck() { const snapshot={device:state.device,page:state.page}; ['tv','mobile'].forEach((device)=>{setDevice(device); ['home','vod','live','search','detail'].forEach((page)=>{setPage(page); console.assert(document.querySelector(`[data-page-view="${page}"]`),`missing ${device} ${page}`);});}); updateState(snapshot); return 'page smoke check complete'; }
+function runPlayerSmokeCheck() { const snapshot=JSON.parse(JSON.stringify(state)); setDevice('mobile'); setPage('detail'); openPlayer('vod'); console.assert(state.device==='mobile-player','video must be landscape'); closePlayer(); setPage('my'); openPlayer('audio'); console.assert(state.device==='mobile','audio must remain portrait'); updateState(snapshot); return 'player smoke check complete'; }
+function runSettingsSmokeCheck() { const snapshot=JSON.parse(JSON.stringify(state)); setPage('detail'); togglePlayerSettings(); console.assert(document.querySelector('[data-settings-context="detail"]:not([hidden])'),'detail settings missing'); setPage('sources'); console.assert(document.body.textContent.includes('点播源管理'),'VOD sources missing'); updateState(snapshot); return 'settings smoke check complete'; }
+function runCoverageSmokeCheck() { const required=['home','search','vod','live','detail','favorites','history','files','my','settings','sources','episodes','report','tools','states','maintenance']; const snapshot=JSON.parse(JSON.stringify(state)); required.forEach((page)=>{setPage(page); console.assert(document.querySelector('[data-page-view]'),`missing ${page}`);}); updateState(snapshot); return 'coverage smoke check complete'; }
+function runOfflineAcceptanceCheck() { const snapshot=JSON.parse(JSON.stringify(state)); try { runSmokeCheck(); runPageSmokeCheck(); runPlayerSmokeCheck(); runSettingsSmokeCheck(); runCoverageSmokeCheck(); ['deep-sea','neon-berry','forest','night-sky'].forEach((wallpaper)=>['dark','light'].forEach((theme)=>{setWallpaper(wallpaper);setTheme(theme);console.assert(document.getElementById('app').dataset.wallpaper===wallpaper,wallpaper);console.assert(document.getElementById('app').dataset.theme===theme,theme);})); return 'offline acceptance check complete'; } finally { updateState(snapshot); } }
+
+document.addEventListener('click',(event)=>{ const gesture=event.target.closest('[data-gesture-surface]'); if (gesture) { updateState({osdVisible:!state.osdVisible,gestureMessage:'单击 · OSD 已切换'}); return; } const button=event.target.closest('button'); if(!button)return; if(button.dataset.device)return setDevice(button.dataset.device); if(button.dataset.theme)return setTheme(button.dataset.theme); if(button.dataset.wallpaper)return setWallpaper(button.dataset.wallpaper); if(button.dataset.coverage)return setPage(button.dataset.page,{coverageVariant:button.dataset.variant||''}); if(button.dataset.page)return setPage(button.dataset.page); const action=button.dataset.action; if(action==='open-search')return setPage('search'); if(action==='open-detail')return setPage('detail'); if(action==='play')return openPlayer('vod'); if(action==='play-live')return openPlayer('live'); if(action==='play-audio')return openPlayer('audio'); if(action==='restore-audio')return openPlayer('audio'); if(action==='minimize-audio')return minimizeAudio(); if(action==='dismiss-mini-audio')return updateState({audioMiniVisible:false}); if(action==='close-player')return closePlayer(); if(action==='open-player-settings')return togglePlayerSettings(); if(action==='switch-line')return setActiveLine(state.activeLine==='线路 A'?'线路 B':'线路 A'); if(action==='open-dialog')return setDialog(button.dataset.dialog); if(action==='close-dialog'||action==='confirm-dialog')return closeDialog(); if(action==='wallpaper-shortcut')return setPage('personalize'); if(action==='open-settings-section'){ if(button.dataset.section==='personalize')return setPage('personalize'); if(button.dataset.section==='sources')return setPage('sources'); return setPage('settings-section',{settingsSection:button.dataset.section}); } if(action==='manage-sources')return updateState({sourceManager:button.dataset.sourceKind}); if(action==='close-source-manager')return updateState({sourceManager:null}); if(action==='toggle-source')return toggleSource(button.dataset.sourceId); if(action==='add-source')return addSource(); if(action==='remove-source')return removeSource(button.dataset.sourceId); if(action==='make-default-source')return makeDefaultSource(button.dataset.sourceId); if(action==='cycle-source-strategy')return cycleSourceStrategy(); if(button.dataset.setting)return cycleSetting(button.dataset.setting); });
+document.addEventListener('keydown',(event)=>{ if(event.key==='Escape'||event.key==='Backspace'){event.preventDefault();handleBack();return;} if(state.device==='tv'&&['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(event.key)){event.preventDefault();const focusables=document.querySelectorAll('[data-focusable]');const delta=event.key==='ArrowUp'||event.key==='ArrowLeft'?-1:1;const next=(state.focusIndex+delta+Math.max(focusables.length,1))%Math.max(focusables.length,1);updateState({focusIndex:next});const refreshed=document.querySelectorAll('[data-focusable]');if(refreshed[next]&&typeof refreshed[next].focus==='function')refreshed[next].focus();}});
+document.addEventListener('dblclick',(event)=>{ if(!event.target.closest('[data-gesture-surface]'))return; updateState({gestureMessage:event.clientX>=480?'双击 · 快进 10 秒':'双击 · 后退 10 秒',osdVisible:true}); });
+document.addEventListener('pointerdown',(event)=>{ if(!event.target.closest('[data-gesture-surface]'))return; updateState({gestureStartedAt:event.timeStamp,longPressActive:true}); });
+document.addEventListener('pointerup',(event)=>{ if(!event.target.closest('[data-gesture-surface]'))return; const longPress=event.timeStamp-state.gestureStartedAt>=600; updateState({longPressActive:false,gestureMessage:longPress?'长按 2× · 已恢复':'触控结束'}); });
+renderApp();
+</script>
+</body>
+</html>
