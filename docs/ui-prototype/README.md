@@ -4,4 +4,20 @@
 
 预览控制区可切换三种画板：TV 为 960 × 540，手机为 540 × 960，手机全屏播放为 960 × 540 横屏。页面上方的“页面覆盖”面板可展开查看模板分组。
 
-浏览器控制台可运行 `runSmokeCheck()`、`runPageSmokeCheck()`、`runPlayerSmokeCheck()`、`runSettingsSmokeCheck()` 和 `runCoverageSmokeCheck()` 进行离线冒烟检查。
+## 页面与预览路径
+
+- 首页（home）：打开后默认显示；点击内容卡片或“继续播放”进入详情。
+- 搜索（search）：TV 左侧点“搜索”。
+- 点播（vod）：TV 左侧或手机底部点“点播”。
+- 直播（live）：TV 左侧或手机底部点“直播”；点“进入频道”预览直播横屏播放器。
+- 详情（detail）：从首页、点播或搜索中的任一内容卡片进入；点“播放”预览点播横屏播放器。
+- 收藏（favorites）：TV 左侧点“收藏”。
+- 历史（history）：TV 左侧点“历史”，或手机底部“我的”后点“观看历史”。
+- 文件（files）：TV 左侧点“文件”，或手机底部“我的”后点“本地文件”。
+- 我的（my）：手机底部点“我的”。
+- 设置（settings）：TV 左侧点“设置”，或手机底部“我的”后点“设置”。
+- 内容源（sources）：设置内点“内容源”。
+
+手机横屏验收：先切换“手机 · 540 × 960”，再进入点播详情并点“播放”，或进入直播并点“进入频道”；两条路径都会切换为 960 × 540 横屏播放器。播放页内点“⚙ 设置”检查播放设置弹层；历史页点“清空历史”、文件/内容源点“选择媒体库”或“管理”检查关键弹层。
+
+浏览器控制台可运行 `runSmokeCheck()`、`runPageSmokeCheck()`、`runPlayerSmokeCheck()`、`runSettingsSmokeCheck()`、`runCoverageSmokeCheck()` 和 `runOfflineAcceptanceCheck()`。最后一项会在四种壁纸、深/浅主题及点播/直播/音频横屏播放器上执行全部离线断言。
