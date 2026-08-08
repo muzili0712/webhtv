@@ -5,129 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>WebHTV · 双端 UI 原型</title>
   <style>
-    :root { --accent:#E7FF4D; --ink:#F8FAFC; --muted:#9AA8BB; --base:#070A10; --surface:rgba(255,255,255,.10); --line:rgba(255,255,255,.16); }
-    * { box-sizing:border-box; }
-    body { margin:0; min-height:100vh; color:var(--ink); background:#020306; font:14px/1.35 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; }
-    button { font:inherit; color:inherit; cursor:pointer; }
-    .prototype-shell { min-height:100vh; display:grid; place-items:center; padding:28px; background:radial-gradient(circle at 50% 0,#1d2732 0,#070a10 46%,#020306 100%); }
-    .control-deck { width:min(960px,100%); display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:16px; }
-    .control-deck button { border:1px solid var(--line); border-radius:999px; background:#121824; padding:8px 13px; }
-    .control-deck button[aria-pressed="true"] { color:#11170a; border-color:var(--accent); background:var(--accent); box-shadow:0 0 20px rgba(231,255,77,.28); }
-    .control-deck .label { margin-left:auto; color:var(--muted); font-size:12px; }
-    #app { position:relative; overflow:hidden; width:960px; height:540px; color:var(--ink); border:1px solid rgba(255,255,255,.18); border-radius:18px; background:var(--base); box-shadow:0 30px 80px #000b; transform-origin:top center; }
-    #app[data-device="mobile"] { width:540px; height:960px; border-radius:28px; }
-    #app[data-device="mobile-player"] { width:960px; height:540px; border-radius:18px; }
-    #app[data-theme="light"] { --ink:#18202b; --muted:#657386; --base:#f1f0ea; --surface:rgba(24,32,43,.08); --line:rgba(24,32,43,.15); }
-    #app[data-wallpaper="deep-sea"] { background:radial-gradient(circle at 75% 20%,#1a4860 0,transparent 32%),linear-gradient(120deg,#071d2e,#070a10 62%); }
-    #app[data-wallpaper="neon-city"] { background:radial-gradient(circle at 70% 20%,#4d1658 0,transparent 28%),linear-gradient(130deg,#15102d,#070a10 62%); }
-    #app[data-wallpaper="aurora"] { background:radial-gradient(ellipse at 35% 0,#125844 0,transparent 45%),linear-gradient(125deg,#07152a,#070a10 65%); }
-    #app[data-wallpaper="paper"] { background:linear-gradient(120deg,#d8d3c5,#f4f0e5 45%,#cbd9cf); }
-    .app-scrim { position:absolute; inset:0; background:linear-gradient(90deg,rgba(7,10,16,.82),rgba(7,10,16,.48)); pointer-events:none; }
-    #app[data-theme="light"] .app-scrim { background:rgba(247,245,237,.38); }
-    .screen { position:relative; z-index:1; height:100%; display:flex; }
-    .sidebar { width:148px; padding:28px 15px; background:rgba(0,0,0,.22); border-right:1px solid var(--line); }
-    .brand { display:flex; align-items:center; gap:8px; margin:0 0 31px 9px; font-weight:800; letter-spacing:.3px; }
-    .brand i { display:grid; place-items:center; width:24px; height:24px; border-radius:7px; background:var(--accent); color:#12180b; font-style:normal; }
-    .nav-item { width:100%; display:flex; gap:9px; border:0; border-radius:10px; background:transparent; padding:9px; text-align:left; color:var(--muted); }
-    .nav-item:hover,.nav-item[aria-current="page"] { color:var(--ink); background:var(--surface); outline:2px solid var(--accent); outline-offset:2px; box-shadow:0 0 15px rgba(231,255,77,.19); }
-    main { flex:1; padding:27px 36px; }
-    .topbar { display:flex; align-items:center; justify-content:space-between; color:var(--muted); }
-    .topbar strong { color:var(--ink); font-size:16px; }
-    .hero { margin-top:44px; max-width:530px; }
-    .eyebrow { color:var(--accent); font-size:11px; font-weight:700; letter-spacing:1.5px; }
-    h1 { margin:7px 0 10px; font-size:42px; line-height:1.08; letter-spacing:-1.5px; }
-    .hero p { max-width:430px; color:var(--muted); }
-    .primary { margin-top:15px; border:0; border-radius:9px; padding:10px 16px; color:#12180b; background:var(--accent); font-weight:800; }
-    .state-card { position:absolute; right:35px; bottom:27px; width:255px; padding:15px; border:1px solid var(--line); border-radius:13px; background:rgba(7,10,16,.72); backdrop-filter:blur(14px); }
-    #app[data-theme="light"] .state-card { background:rgba(250,249,244,.75); }
-    .state-card small { display:block; color:var(--muted); margin-bottom:7px; }
-    .state-card b { display:block; font-size:15px; }
-    .mobile-screen { flex-direction:column; padding:30px 22px 84px; }
-    .mobile-top { display:flex; justify-content:space-between; align-items:center; }
-    .mobile-top strong { font-size:18px; }
-    .search-box { margin-top:19px; padding:12px 14px; color:var(--muted); border:1px solid var(--line); border-radius:13px; background:var(--surface); }
-    .poster { margin-top:20px; min-height:310px; display:flex; flex-direction:column; justify-content:flex-end; padding:24px; border-radius:20px; background:linear-gradient(0deg,rgba(0,0,0,.8),transparent 70%),linear-gradient(135deg,#33516a,#0f1721 65%); }
-    .poster h1 { font-size:36px; margin:5px 0; }
-    .mobile-bottom { position:absolute; right:0; bottom:0; left:0; display:flex; justify-content:space-around; padding:13px 7px 17px; border-top:1px solid var(--line); background:rgba(7,10,16,.85); }
-    #app[data-theme="light"] .mobile-bottom { background:rgba(249,248,242,.86); }
-    .mobile-bottom button { border:0; background:transparent; color:var(--muted); font-size:11px; }
-    .mobile-bottom button[aria-current="page"] { color:var(--accent); font-weight:800; }
-    .player-screen { flex-direction:column; justify-content:space-between; padding:22px 29px; background:radial-gradient(ellipse at 50% 44%,#365261 0,#101c24 37%,#010203 79%); }
-    .player-top,.player-bottom { display:flex; justify-content:space-between; align-items:center; text-shadow:0 2px 7px #000; }
-    .player-top b { font-size:17px; }
-    .player-center { align-self:center; display:grid; place-items:center; width:68px; height:68px; margin:auto; border:2px solid var(--accent); border-radius:50%; background:rgba(7,10,16,.38); color:var(--accent); font-size:24px; box-shadow:0 0 25px rgba(231,255,77,.3); }
-    .progress { width:70%; height:4px; border-radius:99px; background:rgba(255,255,255,.35); overflow:hidden; }
-    .progress i { display:block; width:43%; height:100%; background:var(--accent); }
-    .player-settings { position:absolute; top:74px; right:28px; width:210px; padding:13px; border:1px solid var(--line); border-radius:12px; background:rgba(7,10,16,.89); }
-    .player-settings[hidden] { display:none; }
-    .setting { display:flex; justify-content:space-between; padding:8px 0; color:var(--muted); }
-    .setting b { color:var(--ink); font-weight:600; }
-    @media (max-width:1000px) { .prototype-shell { align-content:start; overflow:auto; } #app { transform:scale(calc((100vw - 32px) / 960)); margin-bottom:calc(-540px + ((100vw - 32px) / 960 * 540px)); } #app[data-device="mobile"] { transform:scale(calc((100vw - 32px) / 540)); margin-bottom:calc(-960px + ((100vw - 32px) / 540 * 960px)); } }
+    :root{--accent:#E7FF4D;--ink:#f8fafc;--muted:#9aa8bb;--base:#070a10;--panel:rgba(18,26,37,.76);--line:rgba(255,255,255,.15)}*{box-sizing:border-box}body{margin:0;background:#020306;color:var(--ink);font:14px/1.4 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}button{font:inherit;color:inherit;cursor:pointer}.prototype-shell{min-height:100vh;display:grid;place-items:center;padding:28px;background:radial-gradient(circle at 50% 0,#243643,#070a10 48%,#020306)}.control-deck{width:min(960px,100%);display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.control-deck button,.ghost,.chip{border:1px solid var(--line);border-radius:999px;background:#121824;padding:8px 13px}.control-deck button[aria-pressed="true"],.primary{border-color:var(--accent);background:var(--accent);color:#11170a;font-weight:800;box-shadow:0 0 18px rgba(231,255,77,.25)}.label{margin-left:auto;color:var(--muted);font-size:12px;align-self:center}#app{position:relative;overflow:hidden;width:960px;height:540px;border:1px solid var(--line);border-radius:18px;background:radial-gradient(circle at 75% 10%,#174154 0,transparent 31%),var(--base);box-shadow:0 30px 80px #000b}#app[data-device="mobile"]{width:540px;height:960px;border-radius:28px}.screen{height:100%;display:flex}.sidebar{width:156px;padding:25px 14px;background:rgba(0,0,0,.27);border-right:1px solid var(--line)}.brand{margin:0 0 26px 8px;font-size:16px;font-weight:800}.brand i{display:inline-grid;place-items:center;width:25px;height:25px;margin-right:7px;border-radius:7px;background:var(--accent);color:#101609;font-style:normal}.nav-item{display:block;width:100%;border:0;border-radius:9px;background:transparent;padding:8px 10px;text-align:left;color:var(--muted)}.nav-item[aria-current="page"]{background:rgba(231,255,77,.14);color:var(--ink);outline:2px solid var(--accent);outline-offset:1px}.desktop-main{flex:1;min-width:0;padding:25px 32px}.topbar,.mobile-top{display:flex;justify-content:space-between;align-items:center}.topbar strong{font-size:17px}.muted{color:var(--muted)}.page-grid{display:grid;gap:16px;margin-top:23px}.hero{min-height:236px;padding:25px;border:1px solid var(--line);border-radius:17px;background:linear-gradient(90deg,rgba(4,8,13,.92),rgba(4,8,13,.28)),linear-gradient(135deg,#395b6b,#10202d 70%)}.eyebrow{color:var(--accent);font-size:11px;font-weight:800;letter-spacing:1.4px}.hero h1{max-width:450px;margin:7px 0;font-size:36px;line-height:1.1;letter-spacing:-1.2px}.hero p{max-width:470px;color:var(--muted)}.primary{margin-top:12px;border:1px solid var(--accent);border-radius:9px;padding:10px 15px}.section-title{display:flex;justify-content:space-between;align-items:center;margin:3px 0 8px;font-weight:800}.poster-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.card{min-height:94px;padding:11px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(145deg,#30495b,#111a24);color:var(--ink);text-align:left}.card b,.card small{display:block}.card small{margin-top:5px;color:var(--muted)}.filters,.line-tabs,.action-row{display:flex;gap:8px;flex-wrap:wrap}.chip{padding:6px 10px;color:var(--muted)}.chip.active{color:#101609;background:var(--accent);border-color:var(--accent)}.content-layout{display:grid;grid-template-columns:170px 1fr;gap:16px}.side-list,.schedule,.detail-info{padding:13px;border:1px solid var(--line);border-radius:13px;background:var(--panel)}.side-list button{display:block;width:100%;border:0;border-radius:7px;background:transparent;padding:8px;text-align:left;color:var(--muted)}.side-list button:first-child{background:rgba(231,255,77,.13);color:var(--ink)}.schedule p{margin:8px 0;padding-bottom:8px;border-bottom:1px solid var(--line)}.search-hero{padding:18px;border:1px solid var(--line);border-radius:13px;background:var(--panel)}.search-input{width:100%;border:1px solid var(--accent);border-radius:10px;background:#0b1119;padding:12px;color:var(--muted)}.detail-layout{display:grid;grid-template-columns:1.15fr .85fr;gap:15px}.player-preview{min-height:246px;display:grid;place-items:center;border-radius:15px;background:radial-gradient(circle,#395a65,#0b1118 62%);font-size:30px}.detail-info h1{margin:7px 0;font-size:25px}.settings-panel{position:absolute;top:80px;right:20px;z-index:3;width:220px;padding:14px;border:1px solid var(--accent);border-radius:13px;background:#101722;box-shadow:0 14px 35px #000a}.settings-panel[hidden]{display:none}.setting{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);color:var(--muted)}.setting b{color:var(--ink)}.mobile-screen{position:relative;display:flex;flex-direction:column;padding:27px 19px 85px}.mobile-content{overflow:auto;flex:1}.mobile-top strong{font-size:19px}.mobile-hero{margin-top:19px;min-height:267px;padding:20px;border-radius:18px;background:linear-gradient(0deg,rgba(0,0,0,.84),transparent),linear-gradient(135deg,#405d6c,#121c27)}.mobile-hero h1{margin:7px 0;font-size:31px;line-height:1.1}.mobile-bottom{position:absolute;right:0;bottom:0;left:0;display:flex;justify-content:space-around;padding:13px 5px 17px;border-top:1px solid var(--line);background:rgba(5,8,13,.92)}.mobile-bottom button{border:0;background:transparent;color:var(--muted);font-size:11px}.mobile-bottom button[aria-current="page"]{color:var(--accent);font-weight:800}.mobile-screen .poster-row{grid-template-columns:repeat(2,1fr)}.mobile-screen .content-layout,.mobile-screen .detail-layout{grid-template-columns:1fr}.mobile-screen .hero{min-height:200px}.mobile-screen .settings-panel{top:auto;right:0;bottom:0;left:0;width:auto;padding:21px;border-radius:20px 20px 0 0;background:#121a25}.mobile-screen .settings-panel:before{content:"";display:block;width:34px;height:4px;margin:-10px auto 12px;border-radius:99px;background:var(--muted)}@media(max-width:1000px){.prototype-shell{align-content:start;overflow:auto}#app{transform:scale(calc((100vw - 32px)/960));transform-origin:top center;margin-bottom:calc(-540px + ((100vw - 32px)/960 * 540px))}#app[data-device="mobile"]{transform:scale(calc((100vw - 32px)/540));margin-bottom:calc(-960px + ((100vw - 32px)/540 * 960px))}}
   </style>
 </head>
 <body>
   <div class="prototype-shell">
     <nav class="control-deck" aria-label="原型预览设备">
-      <button type="button" data-device="tv" onclick="setDevice('tv')">TV · 960 × 540</button>
-      <button type="button" data-device="mobile" onclick="setDevice('mobile')">手机 · 540 × 960</button>
-      <button type="button" data-device="mobile-player" onclick="setDevice('mobile-player')">手机横屏播放器 · 960 × 540</button>
-      <button type="button" onclick="setTheme(state.theme === 'dark' ? 'light' : 'dark')">切换主题</button>
-      <button type="button" onclick="setWallpaper(nextWallpaper())">切换壁纸</button>
-      <span class="label" id="preview-label"></span>
+      <button type="button" data-device="tv">TV · 960 × 540</button><button type="button" data-device="mobile">手机 · 540 × 960</button><span class="label" id="preview-label"></span>
     </nav>
     <section id="app" aria-live="polite"></section>
   </div>
 <script>
-const state = {
-  device: 'tv', page: 'home', theme: 'dark', wallpaper: 'deep-sea',
-  activeLine: '线路 A', playerVisible: false, playerKind: 'vod',
-  playerSettings: { subtitle: '中文 · 自动', danmaku: '开启', aspect: '原始比例', speed: '1.0×' }
-};
-
-const navItems = ['首页', '搜索', '点播', '直播', '收藏', '历史', '文件', '设置'];
-const mobileItems = ['首页', '点播', '直播', '收藏', '我的'];
-const dimensions = { tv: '960 × 540', mobile: '540 × 960', 'mobile-player': '960 × 540' };
-const wallpapers = ['deep-sea', 'neon-city', 'aurora', 'paper'];
-
-function setDevice(device) { state.device = device; renderApp(); }
-function setPage(page) { state.page = page; state.playerVisible = false; renderApp(); }
-function setTheme(theme) { state.theme = theme; renderApp(); }
-function setWallpaper(id) { state.wallpaper = id; renderApp(); }
-function setPlayerSetting(key, value) { state.playerSettings[key] = value; renderApp(); }
-function setPlayerVisible(visible) { state.playerVisible = visible; renderApp(); }
-function togglePlayerVisible() { setPlayerVisible(!state.playerVisible); }
-function nextWallpaper() { return wallpapers[(wallpapers.indexOf(state.wallpaper) + 1) % wallpapers.length]; }
-function showPlayer() { state.playerVisible = true; state.device = state.device === 'mobile' ? 'mobile-player' : state.device; renderApp(); }
-
-function tvMarkup() {
-  return `<div class="app-scrim"></div><div class="screen">
-    <aside class="sidebar"><div class="brand"><i>▶</i> WebHTV</div>${navItems.map((item) => `<button class="nav-item" aria-current="${state.page === item ? 'page' : 'false'}" onclick="setPage('${item}')">${item}</button>`).join('')}</aside>
-    <main><header class="topbar"><strong>${state.page}</strong><span>深海剧场　⌁　20:26</span></header>
-      <div class="hero"><span class="eyebrow">继续观看</span><h1>在海风吹拂的夜晚</h1><p>线路 ${state.activeLine} · 字幕 ${state.playerSettings.subtitle} · 记忆上次观看进度。</p><button class="primary" onclick="showPlayer()">▶ 继续播放</button></div>
-      <div class="state-card"><small>设计画板 / TV</small><b>960 × 540</b><small>焦点：高亮填充、外扩描边与微光</small></div>
-    </main></div>`;
-}
-function mobileMarkup() {
-  return `<div class="app-scrim"></div><div class="screen mobile-screen"><header class="mobile-top"><strong>WebHTV</strong><span>20:26　◌</span></header><div class="search-box">⌕ 搜索电影、剧集、演员</div><section class="poster"><span class="eyebrow">继续观看</span><h1>在海风吹拂的夜晚</h1><p>更新至第 8 集 · ${state.activeLine}</p><button class="primary" onclick="showPlayer()">▶ 继续播放</button></section><div class="state-card"><small>设计画板 / 手机</small><b>540 × 960</b><small>${state.theme === 'dark' ? '深色电影感' : '浅色适配'} · ${state.wallpaper}</small></div><nav class="mobile-bottom">${mobileItems.map((item) => `<button aria-current="${state.page === item ? 'page' : 'false'}" onclick="setPage('${item}')">${item}</button>`).join('')}</nav></div>`;
-}
-function playerMarkup() {
-  return `<div class="screen player-screen"><header class="player-top"><b>在海风吹拂的夜晚 · 第 08 集</b><span>${state.activeLine}　⌄　✕</span></header><button class="player-center" aria-label="暂停">Ⅱ</button><footer class="player-bottom"><span>18:42 / 45:00</span><div class="progress"><i></i></div><button class="primary" onclick="togglePlayerVisible()">⚙ 设置</button></footer><aside class="player-settings" ${state.playerVisible ? '' : 'hidden'}><span class="eyebrow">播放设置</span>${Object.entries(state.playerSettings).map(([key,value]) => `<div class="setting"><span>${key}</span><b>${value}</b></div>`).join('')}<div class="setting"><span>线路</span><b>${state.activeLine}</b></div></aside></div>`;
-}
-function renderApp() {
-  const app = document.getElementById('app');
-  app.dataset.device = state.device;
-  app.dataset.theme = state.theme;
-  app.dataset.wallpaper = state.wallpaper;
-  app.innerHTML = state.device === 'mobile-player' ? playerMarkup() : state.device === 'mobile' ? mobileMarkup() : tvMarkup();
-  document.querySelectorAll('[data-device]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.device === state.device)));
-  document.getElementById('preview-label').textContent = `${dimensions[state.device]} · ${state.theme === 'dark' ? '深色' : '浅色'} · ${state.wallpaper}`;
-}
-function runSmokeCheck() {
-  const required = ['tv', 'mobile', 'mobile-player'];
-  const valid = required.every((mode) => document.querySelector(`[data-device="${mode}"]`));
-  console.assert(valid, 'device switcher is incomplete');
-  console.assert(typeof renderApp === 'function', 'renderApp is missing');
-}
+const state={device:'tv',page:'home',theme:'dark',wallpaper:'deep-sea',activeLine:'线路 A',playerVisible:false,playerKind:'vod',playerSettings:{subtitle:'中文 · 自动',danmaku:'开启',aspect:'原始比例',speed:'1.0×'}};
+const tvNav=[['home','首页'],['search','搜索'],['vod','点播'],['live','直播'],['favorite','收藏'],['history','历史'],['files','文件'],['settings','设置']];
+const mobileNav=[['home','首页'],['vod','点播'],['live','直播'],['favorite','收藏'],['profile','我的']];
+const dimensions={tv:'960 × 540',mobile:'540 × 960'};
+function setDevice(device){state.device=device;renderApp()}function setPage(page){state.page=page;state.playerVisible=false;renderApp()}function setTheme(theme){state.theme=theme;renderApp()}function setWallpaper(id){state.wallpaper=id;renderApp()}function setPlayerSetting(key,value){state.playerSettings[key]=value;renderApp()}function setPlayerVisible(visible){state.playerVisible=visible;renderApp()}function togglePlayerVisible(){setPlayerVisible(!state.playerVisible)}function setActiveLine(line){state.activeLine=line;renderApp()}function showPlayer(){setPage('detail')}
+function cards(names){return `<div class="poster-row">${names.map((name,i)=>`<button class="card" type="button" data-action="open-detail"><b>${name}</b><small>${['电影 · 2026','更新至第 8 集','热播榜 #'+(i+1),'4K 杜比视界'][i%4]}</small></button>`).join('')}</div>`}
+function renderHome(){return `<section class="page-grid" data-page-view="home"><div class="hero"><span class="eyebrow">继续观看</span><h1>在海风吹拂的夜晚</h1><p>第 08 集 · 已观看 18:42 · ${state.activeLine}。从上次离开的地方继续。</p><button class="primary" type="button" data-action="open-detail">▶ 继续播放</button></div><div><div class="section-title"><span>为你推荐</span><span class="muted">查看全部</span></div>${cards(['无声浪潮','弥留之城','夜航船','晴天归来'])}</div></section>`}
+function renderVod(){return `<section class="page-grid" data-page-view="vod"><div><div class="section-title"><span>点播</span><span class="muted">18,426 部内容</span></div><div class="filters"><button class="chip active">全部</button><button class="chip">电影</button><button class="chip">剧集</button><button class="chip">综艺</button><button class="chip">动漫</button><button class="chip">4K</button></div></div><div class="content-layout"><aside class="side-list"><button>热门推荐</button><button>华语</button><button>欧美</button><button>日韩</button><button>高分佳作</button></aside><div>${cards(['夏日光年','迷雾追踪','海岸线','星际候鸟'])}<div class="section-title"><span>本周新上架</span></div>${cards(['旷野之歌','旧日回声','黑曜计划','白昼梦境'])}</div></div></section>`}
+function renderLive(){return `<section class="page-grid" data-page-view="live"><div class="section-title"><span>直播</span><span class="muted">正在直播 128 个频道</span></div><div class="content-layout"><aside class="side-list"><button>推荐</button><button>央视频道</button><button>卫视</button><button>体育</button><button>少儿</button></aside><div><div class="hero"><span class="eyebrow">CCTV-6 电影</span><h1>正在播出 · 经典影展</h1><p>20:00 光影长廊　21:45 午夜首映　23:30 电影世界</p><button class="primary" type="button" data-action="open-detail">▶ 进入频道</button></div><div class="schedule"><b>节目单</b><p>19:30　电影报道</p><p><strong>20:00　经典影展</strong></p><p>21:45　午夜首映</p></div></div></div></section>`}
+function renderSearch(){return `<section class="page-grid" data-page-view="search"><div class="search-hero"><div class="search-input">⌕　搜索电影、剧集、演员</div></div><div class="content-layout"><aside class="side-list"><b>搜索历史</b><button>在海风吹拂的夜晚</button><button>犯罪都市</button><button>银河旅人</button></aside><div><div class="section-title"><span>热搜</span></div><div class="filters"><button class="chip active">无声浪潮</button><button class="chip">夜航船</button><button class="chip">纸月亮</button><button class="chip">夏日光年</button></div><div class="section-title"><span>搜索结果</span><span class="muted">相关内容 12 条</span></div>${cards(['在海风吹拂的夜晚','海边的卡夫卡','海洋之歌','海街日记'])}</div></div></section>`}
+function renderDetail(){return `<section class="page-grid" data-page-view="detail"><div class="detail-layout"><div class="player-preview">▶</div><div class="detail-info"><span class="eyebrow">剧情 · 2026 · 4K</span><h1>在海风吹拂的夜晚</h1><p class="muted">海风、旧信与一段被搁置的归途。在小岛的漫长夏夜里，所有人都在寻找自己的答案。</p><div class="action-row"><button class="primary" type="button" data-action="play">▶ 播放</button><button class="ghost" type="button">♡ 收藏</button><button class="ghost" type="button">↗ 分享</button></div></div></div><div class="line-tabs"><button type="button" data-action="switch-line" class="chip ${state.activeLine==='线路 A'?'active':''}">线路 A</button><button type="button" data-action="switch-line" class="chip ${state.activeLine==='线路 B'?'active':''}">线路 B</button><button type="button" data-action="open-player-settings" class="ghost">⚙ 播放设置</button></div><div class="muted">第 08 集 · ${state.playerSettings.subtitle} · ${state.playerSettings.aspect}</div></section>`}
+function renderFallback(){return `<section class="page-grid" data-page-view="${state.page}"><div class="hero"><span class="eyebrow">WebHTV</span><h1>${state.page==='favorite'?'收藏':'个人中心'}</h1><p>此入口已准备好，继续从首页、点播或直播发现内容。</p><button class="primary" type="button" data-page="home">返回首页</button></div></section>`}
+function renderNavigation(){const items=state.device==='tv'?tvNav:mobileNav;const className=state.device==='tv'?'sidebar':'mobile-bottom';return `<nav class="${className}" aria-label="主导航">${state.device==='tv'?'<div class="brand"><i>▶</i>WebHTV</div>':''}${items.map(([page,label])=>`<button type="button" class="${state.device==='tv'?'nav-item':''}" data-page="${page}" aria-current="${state.page===page?'page':'false'}">${label}</button>`).join('')}</nav>`}
+function renderSettingsPanel(){return `<aside class="settings-panel" ${state.playerVisible?'':'hidden'}><span class="eyebrow">播放设置</span>${Object.entries(state.playerSettings).map(([key,value])=>`<div class="setting"><span>${key}</span><b>${value}</b></div>`).join('')}<div class="setting"><span>当前线路</span><b>${state.activeLine}</b></div></aside>`}
+function renderPage(){return({home:renderHome,vod:renderVod,live:renderLive,search:renderSearch,detail:renderDetail}[state.page]||renderFallback)()}
+function renderApp(){const app=document.getElementById('app');app.dataset.device=state.device;app.dataset.theme=state.theme;app.innerHTML=state.device==='tv'?`<div class="screen">${renderNavigation()}<main class="desktop-main"><header class="topbar"><strong>${({home:'首页',vod:'点播',live:'直播',search:'搜索',detail:'内容详情'})[state.page]||'WebHTV'}</strong><span class="muted">深海剧场　20:26</span></header>${renderPage()}</main>${renderSettingsPanel()}</div>`:`<div class="screen mobile-screen"><header class="mobile-top"><strong>WebHTV</strong><span class="muted">20:26　◌</span></header><main class="mobile-content">${renderPage()}</main>${renderNavigation()}${renderSettingsPanel()}</div>`;document.querySelectorAll('[data-device]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.device===state.device)));document.getElementById('preview-label').textContent=`${dimensions[state.device]} · 深色电影感 · ${state.page}`}
+function runSmokeCheck(){const valid=['tv','mobile'].every(mode=>document.querySelector(`[data-device="${mode}"]`));console.assert(valid,'device switcher is incomplete');console.assert(typeof renderApp==='function','renderApp is missing')}
+function runPageSmokeCheck(){const originalDevice=state.device;const originalPage=state.page;['tv','mobile'].forEach(device=>{setDevice(device);['home','vod','live','search','detail'].forEach(page=>{setPage(page);console.assert(document.querySelector(`[data-page-view="${page}"]`),`${device} ${page} view is missing`)})});setDevice(originalDevice);setPage(originalPage);return 'page smoke check complete'}
+document.addEventListener('click',event=>{const button=event.target.closest('button');if(!button)return;if(button.dataset.device){setDevice(button.dataset.device);return}if(button.dataset.page){setPage(button.dataset.page);return}if(button.dataset.action==='open-detail'||button.dataset.action==='play'){setPage('detail');return}if(button.dataset.action==='open-player-settings'){togglePlayerVisible();return}if(button.dataset.action==='switch-line'){setActiveLine(button.textContent.trim())}});
 renderApp();
 </script>
 </body>
