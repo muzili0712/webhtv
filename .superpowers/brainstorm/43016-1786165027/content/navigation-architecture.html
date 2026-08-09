@@ -1,0 +1,99 @@
+<style>
+  .ia-head { max-width: 860px; margin-bottom: 22px; }
+  .ia-grid { display:grid; grid-template-columns:1.2fr .8fr; gap:22px; align-items:start; }
+  .ia-stage { border-radius:22px; padding:18px; background:linear-gradient(150deg,#111b29,#070a10 70%); border:1px solid rgba(148,163,184,.18); }
+  .ia-stage-title { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; color:#f1f5f9; }
+  .ia-stage-title b { font-size:16px; }
+  .ia-chip { padding:5px 8px; border-radius:999px; background:rgba(231,255,77,.12); color:#e7ff4d; font-size:10px; letter-spacing:.08em; }
+  .devices { display:grid; grid-template-columns:1.55fr .64fr; gap:16px; align-items:center; }
+  .tv-shell { position:relative; aspect-ratio:16/9; border-radius:13px; overflow:hidden; background:radial-gradient(circle at 75% 10%,#2c5260 0,#13202d 35%,#080b11 72%); box-shadow:0 18px 50px rgba(0,0,0,.34); color:#f8fafc; }
+  .tv-rail { position:absolute; z-index:3; left:0; top:0; bottom:0; width:17%; padding:12px 7px; box-sizing:border-box; background:linear-gradient(90deg,rgba(3,6,10,.98),rgba(3,6,10,.86),transparent); }
+  .tv-brand { color:#e7ff4d; font-size:8px; font-weight:800; letter-spacing:.1em; margin:1px 5px 12px; }
+  .tv-nav { display:flex; align-items:center; gap:5px; padding:5px 6px; margin:2px 0; border-radius:5px; color:#929daa; font-size:5px; }
+  .tv-nav i { display:block; width:8px; height:8px; border-radius:3px; background:rgba(255,255,255,.1); }
+  .tv-nav.active { background:#e7ff4d; color:#0b1020; font-weight:700; box-shadow:0 0 0 2px rgba(231,255,77,.18); }
+  .tv-nav.active i { background:#0b1020; }
+  .tv-content { position:absolute; left:17%; top:0; right:0; bottom:0; padding:13px 14px; box-sizing:border-box; }
+  .tv-top { display:flex; justify-content:flex-end; gap:10px; color:#b8c2cc; font-size:5px; }
+  .tv-hero { width:72%; margin-top:14px; }
+  .tv-kicker { color:#e7ff4d; font-size:5px; letter-spacing:.16em; }
+  .tv-hero h3 { font-size:18px; margin:4px 0 5px; color:#fff; }
+  .tv-hero p { font-size:5px; color:#9aa8b6; line-height:1.5; margin:0; }
+  .tv-actions { margin-top:8px; display:flex; gap:5px; }
+  .tv-action { padding:4px 7px; background:#e7ff4d; color:#0b1020; border-radius:4px; font-size:5px; }
+  .tv-action.secondary { background:rgba(255,255,255,.1); color:#fff; }
+  .tv-row { position:absolute; left:14px; right:0; bottom:10px; display:flex; gap:6px; }
+  .tv-card { width:22%; height:34px; border-radius:5px; background:linear-gradient(145deg,#475e6b,#171e27); border:1px solid rgba(255,255,255,.07); }
+  .tv-card:nth-child(2){background:linear-gradient(145deg,#795b46,#24222a)}
+  .tv-card:nth-child(3){background:linear-gradient(145deg,#66506d,#201d28)}
+  .tv-card:nth-child(4){background:linear-gradient(145deg,#3c635c,#172028)}
+
+  .phone-shell { position:relative; aspect-ratio:9/16; border-radius:19px; overflow:hidden; border:3px solid #202a36; background:linear-gradient(180deg,#142332,#080b11 62%); color:#f8fafc; box-shadow:0 18px 50px rgba(0,0,0,.38); }
+  .m-status { display:flex; justify-content:space-between; padding:8px 10px 4px; font-size:4px; color:#b9c3cc; }
+  .m-head { display:flex; justify-content:space-between; align-items:center; padding:5px 10px 7px; }
+  .m-brand { color:#e7ff4d; font-size:7px; font-weight:800; letter-spacing:.1em; }
+  .m-head span { font-size:6px; }
+  .m-feature { margin:0 9px; height:38%; border-radius:10px; background:radial-gradient(circle at 72% 20%,#3c6470,#14212d 62%); padding:10px; box-sizing:border-box; display:flex; flex-direction:column; justify-content:flex-end; }
+  .m-feature small { color:#e7ff4d; font-size:4px; letter-spacing:.12em; }
+  .m-feature b { font-size:11px; margin:4px 0; }
+  .m-feature em { font-style:normal; font-size:4px; color:#aeb9c4; }
+  .m-label { margin:10px 10px 6px; font-size:5px; }
+  .m-cards { display:grid; grid-template-columns:repeat(2,1fr); gap:5px; margin:0 10px; }
+  .m-card { height:42px; border-radius:6px; background:linear-gradient(145deg,#526773,#202630); }
+  .m-card:nth-child(2){background:linear-gradient(145deg,#775a47,#26232c)}
+  .m-bottom { position:absolute; left:0; right:0; bottom:0; height:12%; padding:5px 6px; display:grid; grid-template-columns:repeat(5,1fr); background:rgba(6,9,14,.96); border-top:1px solid rgba(255,255,255,.06); box-sizing:border-box; }
+  .m-tab { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-size:3.5px; color:#7f8a96; }
+  .m-tab i { width:7px; height:7px; border-radius:3px; background:rgba(255,255,255,.11); }
+  .m-tab.active { color:#e7ff4d; }
+  .m-tab.active i { background:#e7ff4d; }
+
+  .ia-map { display:grid; gap:10px; }
+  .ia-group { border-radius:16px; border:1px solid rgba(148,163,184,.18); background:rgba(15,23,42,.7); overflow:hidden; }
+  .ia-group-head { display:flex; align-items:center; gap:9px; padding:12px 14px; color:#f8fafc; border-bottom:1px solid rgba(148,163,184,.12); }
+  .ia-num { display:flex; align-items:center; justify-content:center; width:25px; height:25px; border-radius:8px; background:#e7ff4d; color:#0b1020; font-size:10px; font-weight:800; }
+  .ia-group-head b { font-size:13px; }
+  .ia-pages { padding:10px 13px 13px; display:flex; flex-wrap:wrap; gap:6px; }
+  .ia-page { padding:5px 7px; border-radius:7px; background:rgba(255,255,255,.06); color:#aeb8c4; font-size:10px; }
+  .ia-note { margin-top:16px; display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .note { border-top:1px solid rgba(148,163,184,.24); padding-top:9px; }
+  .note b { display:block; color:#f8fafc; font-size:11px; margin-bottom:4px; }
+  .note span { color:#94a3b8; font-size:10px; line-height:1.45; }
+  .approve { margin-top:20px; display:flex; justify-content:center; }
+  .approve-card { display:flex; align-items:center; gap:12px; width:min(520px,100%); padding:13px 16px; border:1px solid rgba(231,255,77,.35); border-radius:14px; background:rgba(231,255,77,.07); cursor:pointer; transition:.2s ease; }
+  .approve-card:hover,.approve-card.selected { background:rgba(231,255,77,.14); border-color:#e7ff4d; transform:translateY(-2px); }
+  .approve-icon { display:flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:9px; background:#e7ff4d; color:#0b1020; font-weight:800; }
+  .approve-copy b { display:block; color:#f8fafc; font-size:13px; }
+  .approve-copy span { color:#94a3b8; font-size:10px; }
+  @media(max-width:900px){.ia-grid{grid-template-columns:1fr}.devices{max-width:700px;margin:auto}.ia-note{grid-template-columns:1fr}.ia-map{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.devices{grid-template-columns:1fr}.phone-shell{width:52%;margin:0 auto}.ia-map{grid-template-columns:1fr}}
+</style>
+
+<div class="ia-head">
+  <h2>设计第一部分：双端信息架构</h2>
+  <p class="subtitle">功能完整保留，但入口按设备习惯重组：TV 追求一步可见和稳定焦点，手机追求拇指可达和层级收敛。</p>
+</div>
+
+<div class="ia-grid">
+  <section class="ia-stage">
+    <div class="ia-stage-title"><b>导航骨架预览</b><span class="ia-chip">A · 电影感聚焦</span></div>
+    <div class="devices">
+      <div class="tv-shell">
+        <div class="tv-rail"><div class="tv-brand">WEBHTV</div><div class="tv-nav active"><i></i>首页</div><div class="tv-nav"><i></i>搜索</div><div class="tv-nav"><i></i>片库</div><div class="tv-nav"><i></i>直播</div><div class="tv-nav"><i></i>收藏</div><div class="tv-nav"><i></i>历史</div><div class="tv-nav"><i></i>文件</div><div class="tv-nav"><i></i>设置</div></div>
+        <div class="tv-content"><div class="tv-top">切换站点　壁纸　21:08</div><div class="tv-hero"><span class="tv-kicker">继续观看 · 第 08 集</span><h3>沙丘：预言</h3><p>剧情信息、播放状态与主要动作集中在首屏焦点路径。</p><div class="tv-actions"><span class="tv-action">▶ 继续播放</span><span class="tv-action secondary">＋ 收藏</span></div></div><div class="tv-row"><i class="tv-card"></i><i class="tv-card"></i><i class="tv-card"></i><i class="tv-card"></i></div></div>
+      </div>
+      <div class="phone-shell">
+        <div class="m-status"><span>21:08</span><span>5G　86%</span></div><div class="m-head"><b class="m-brand">WEBHTV</b><span>⌕　◉</span></div><div class="m-feature"><small>继续观看 · 08</small><b>沙丘：预言</b><em>4K · HDR · 杜比全景声</em></div><div class="m-label">为你推荐</div><div class="m-cards"><i class="m-card"></i><i class="m-card"></i></div><div class="m-bottom"><div class="m-tab active"><i></i>首页</div><div class="m-tab"><i></i>片库</div><div class="m-tab"><i></i>直播</div><div class="m-tab"><i></i>收藏</div><div class="m-tab"><i></i>我的</div></div>
+      </div>
+    </div>
+    <div class="ia-note"><div class="note"><b>TV · 8 个一级入口</b><span>左侧常驻导航；焦点只沿确定方向移动，返回键可预测。</span></div><div class="note"><b>手机 · 5 个底部入口</b><span>搜索放在顶部；历史、文件、投屏和设置收入“我的”。</span></div><div class="note"><b>全局壁纸</b><span>首页 36% 遮罩，列表 56%，设置 78%，播放器按场景独立处理。</span></div></div>
+  </section>
+
+  <aside class="ia-map">
+    <div class="ia-group"><div class="ia-group-head"><span class="ia-num">01</span><b>发现与浏览</b></div><div class="ia-pages"><span class="ia-page">首页</span><span class="ia-page">搜索</span><span class="ia-page">片库/分类</span><span class="ia-page">筛选</span><span class="ia-page">影视详情</span><span class="ia-page">人物详情</span><span class="ia-page">Web 主题详情</span></div></div>
+    <div class="ia-group"><div class="ia-group-head"><span class="ia-num">02</span><b>播放与直播</b></div><div class="ia-pages"><span class="ia-page">视频播放器</span><span class="ia-page">直播播放器</span><span class="ia-page">音频播放器</span><span class="ia-page">选集</span><span class="ia-page">线路/清晰度</span><span class="ia-page">字幕/弹幕</span><span class="ia-page">倍速/画面</span></div></div>
+    <div class="ia-group"><div class="ia-group-head"><span class="ia-num">03</span><b>个人媒体</b></div><div class="ia-pages"><span class="ia-page">收藏</span><span class="ia-page">历史</span><span class="ia-page">观看报告</span><span class="ia-page">文件</span><span class="ia-page">文件夹</span><span class="ia-page">扫码</span><span class="ia-page">推送/投屏</span></div></div>
+    <div class="ia-group"><div class="ia-group-head"><span class="ia-num">04</span><b>设置与系统</b></div><div class="ia-pages"><span class="ia-page">设置总览</span><span class="ia-page">播放</span><span class="ia-page">弹幕</span><span class="ia-page">字幕</span><span class="ia-page">增强</span><span class="ia-page">个性化/壁纸</span><span class="ia-page">配置模板</span><span class="ia-page">异常/空状态</span></div></div>
+  </aside>
+</div>
+
+<div class="approve"><div class="approve-card" data-choice="approve-navigation-architecture" onclick="toggleSelect(this)"><span class="approve-icon">✓</span><span class="approve-copy"><b>确认这套双端导航结构</b><span>点击确认，或在对话中提出需要调整的入口与分组</span></span></div></div>

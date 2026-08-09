@@ -1,0 +1,147 @@
+<style>
+  .direction-intro { max-width: 820px; margin-bottom: 24px; }
+  .direction-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; align-items: stretch; }
+  .direction-card { position: relative; overflow: hidden; border: 1px solid rgba(148,163,184,.2); border-radius: 22px; background: rgba(15,23,42,.72); cursor: pointer; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+  .direction-card:hover { transform: translateY(-3px); border-color: rgba(56,189,248,.65); }
+  .direction-card.selected { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56,189,248,.2), 0 18px 50px rgba(2,132,199,.18); }
+  .direction-preview { padding: 14px 14px 10px; min-height: 292px; }
+  .device-row { display: flex; align-items: flex-end; gap: 9px; min-height: 270px; }
+  .tv-device { position: relative; flex: 1; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 24px rgba(0,0,0,.34); }
+  .phone-device { position: relative; width: 31%; aspect-ratio: 9 / 16; border-radius: 12px; overflow: hidden; border: 2px solid rgba(255,255,255,.1); box-shadow: 0 10px 24px rgba(0,0,0,.34); }
+  .device-gloss { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(120deg, rgba(255,255,255,.08), transparent 28%, transparent 72%, rgba(255,255,255,.03)); }
+  .direction-copy { padding: 0 18px 18px; }
+  .direction-copy h3 { display: flex; gap: 8px; align-items: center; margin: 0 0 7px; font-size: 18px; }
+  .direction-copy p { margin: 0; color: #94a3b8; line-height: 1.55; font-size: 13px; }
+  .pick-letter { display: inline-flex; width: 26px; height: 26px; align-items: center; justify-content: center; border-radius: 8px; background: rgba(255,255,255,.08); color: #e2e8f0; font-size: 12px; }
+  .recommended { position: absolute; z-index: 5; top: 10px; left: 10px; padding: 5px 8px; border-radius: 999px; background: #e7ff4d; color: #0b1020; font-size: 10px; font-weight: 700; letter-spacing: .08em; }
+
+  .cinema-tv { background: radial-gradient(circle at 70% 18%, #294e61 0, #111c2b 42%, #070a10 75%); color: #f8fafc; }
+  .cinema-tv .topline { display: flex; align-items: center; justify-content: space-between; padding: 9px 11px; font-size: 6px; color: #b7c1ca; }
+  .cinema-tv .brand { color: #e7ff4d; font-size: 7px; font-weight: 700; letter-spacing: .12em; }
+  .cinema-tv .hero { padding: 8px 12px; width: 64%; }
+  .cinema-tv .eyebrow { color: #e7ff4d; font-size: 5px; text-transform: uppercase; letter-spacing: .18em; }
+  .cinema-tv .title { margin: 5px 0 4px; font-size: 16px; font-weight: 650; letter-spacing: -.04em; }
+  .cinema-tv .desc { color: #9aa8b6; font-size: 5px; line-height: 1.5; }
+  .cinema-tv .actions { display: flex; gap: 5px; margin-top: 7px; }
+  .cinema-tv .action { border-radius: 5px; padding: 4px 7px; background: #e7ff4d; color: #0b1020; font-size: 5px; font-weight: 700; }
+  .cinema-tv .action.ghost { color: #e2e8f0; background: rgba(255,255,255,.1); }
+  .cinema-tv .rail { position: absolute; left: 12px; right: 0; bottom: 10px; display: flex; gap: 6px; }
+  .cinema-tv .poster { width: 21%; aspect-ratio: 1.6; border-radius: 6px; background: linear-gradient(150deg,#425a69,#171f2b); border: 1px solid rgba(255,255,255,.08); }
+  .cinema-tv .poster:nth-child(2) { background: linear-gradient(150deg,#705a47,#1f2029); }
+  .cinema-tv .poster:nth-child(3) { background: linear-gradient(150deg,#68506e,#1e1c29); }
+  .cinema-tv .poster:nth-child(4) { background: linear-gradient(150deg,#375a55,#171f27); }
+  .cinema-phone { background: linear-gradient(180deg,#131d29,#07090e 62%); color: #f8fafc; padding: 9px 7px; }
+  .cinema-phone .m-top { display:flex; justify-content:space-between; font-size:4px; color:#9aa8b6; }
+  .cinema-phone .m-feature { height: 42%; margin: 8px 0; border-radius: 8px; background: radial-gradient(circle at 65% 25%,#385f6b,#121c28 62%); padding: 8px; box-sizing:border-box; }
+  .cinema-phone .m-feature b { display:block; margin-top: 20px; font-size: 9px; }
+  .cinema-phone .m-feature span { color:#e7ff4d; font-size:4px; }
+  .cinema-phone .m-label { font-size:5px; margin:6px 0; }
+  .cinema-phone .m-posters { display:grid; grid-template-columns:repeat(2,1fr); gap:5px; }
+  .cinema-phone .m-poster { aspect-ratio: .72; border-radius:6px; background:linear-gradient(145deg,#4f6470,#202630); }
+  .cinema-phone .m-poster:nth-child(2){ background:linear-gradient(145deg,#755844,#24232d); }
+
+  .aurora-tv { background: radial-gradient(circle at 12% 8%, #b9efe6, transparent 34%), radial-gradient(circle at 88% 22%, #c1b8ff, transparent 38%), linear-gradient(145deg,#19273e,#111529); color:#f8fafc; }
+  .aurora-tv .glass-side { position:absolute; left:8px; top:8px; bottom:8px; width:14%; border:1px solid rgba(255,255,255,.2); border-radius:9px; background:rgba(255,255,255,.1); backdrop-filter:blur(12px); display:flex; flex-direction:column; align-items:center; gap:8px; padding-top:10px; }
+  .aurora-tv .navdot { width:12px; height:12px; border-radius:4px; background:rgba(255,255,255,.16); }
+  .aurora-tv .navdot.active { background:#9ff5d6; box-shadow:0 0 12px rgba(159,245,214,.7); }
+  .aurora-tv .glass-main { position:absolute; left:18%; top:8px; right:8px; bottom:8px; border:1px solid rgba(255,255,255,.16); border-radius:12px; background:rgba(15,23,42,.42); backdrop-filter:blur(14px); padding:10px; }
+  .aurora-tv .greeting { font-size:6px; color:#dce7ef; }
+  .aurora-tv .focus-card { margin-top:7px; height:46%; border-radius:9px; background:linear-gradient(110deg,rgba(33,48,76,.94),rgba(96,87,135,.55)); padding:10px; box-sizing:border-box; }
+  .aurora-tv .focus-card b { font-size:14px; display:block; margin-top:8px; }
+  .aurora-tv .focus-card span { font-size:5px; color:#dbeafe; }
+  .aurora-tv .glass-rail { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:7px; }
+  .aurora-tv .tile { height:30px; border-radius:7px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.08); }
+  .aurora-phone { background: radial-gradient(circle at 6% 2%,#a5e9df,transparent 33%),radial-gradient(circle at 90% 16%,#afa8ee,transparent 38%),linear-gradient(160deg,#1a2540,#101325 65%); padding:8px; color:#f8fafc; }
+  .aurora-phone .glass-pill { height:18px; border-radius:7px; background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.14); }
+  .aurora-phone .glass-feature { margin-top:8px; height:42%; border-radius:10px; background:rgba(15,23,42,.5); border:1px solid rgba(255,255,255,.16); padding:8px; box-sizing:border-box; }
+  .aurora-phone .glass-feature b { display:block; font-size:9px; margin-top:38px; }
+  .aurora-phone .glass-feature span { font-size:4px; color:#c9fff0; }
+  .aurora-phone .glass-list { display:grid; gap:6px; margin-top:8px; }
+  .aurora-phone .glass-list i { display:block; height:28px; border-radius:8px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.1); }
+
+  .editorial-tv { background:#f2efe7; color:#17201e; }
+  .editorial-tv .e-top { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-bottom:1px solid #c9c4b9; font-size:6px; }
+  .editorial-tv .e-logo {font-size:8px;font-weight:700;}
+  .editorial-tv .e-main { display:grid; grid-template-columns:1.08fr .92fr; gap:8px; padding:9px 12px; }
+  .editorial-tv .e-copy { padding-top:4px; }
+  .editorial-tv .e-index {font-size:5px;color:#c65532;text-transform:uppercase;letter-spacing:.16em;}
+  .editorial-tv .e-title {font-family:Georgia,serif;font-size:18px;line-height:.95;margin:7px 0;}
+  .editorial-tv .e-desc {font-size:5px;color:#64675f;line-height:1.5;}
+  .editorial-tv .e-art {border-radius:3px;background:linear-gradient(145deg,#d28f68,#3e6d72 52%,#1f2a33);}
+  .editorial-tv .e-cards {position:absolute;left:12px;right:12px;bottom:9px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+  .editorial-tv .e-card {height:24px;border-top:2px solid #17201e;padding-top:4px;font-size:5px;}
+  .editorial-phone { background:#f2efe7; color:#17201e; padding:9px 7px; }
+  .editorial-phone .em-top {display:flex;justify-content:space-between;font-size:5px;border-bottom:1px solid #cbc5b9;padding-bottom:7px;}
+  .editorial-phone .em-art {height:40%;margin-top:9px;background:linear-gradient(145deg,#d28f68,#47747a 52%,#26323b);}
+  .editorial-phone .em-tag {font-size:4px;color:#b64b2c;margin-top:8px;letter-spacing:.15em;}
+  .editorial-phone .em-title {font:11px/1 Georgia,serif;margin:5px 0 8px;}
+  .editorial-phone .em-row {border-top:1px solid #c8c2b6;padding:8px 0;font-size:5px;display:flex;justify-content:space-between;}
+
+  .direction-footnote { margin-top: 18px; color:#94a3b8; font-size:12px; text-align:center; }
+  @media (max-width: 980px) { .direction-grid { grid-template-columns: 1fr; } .direction-preview { min-height: 330px; } .device-row { max-width: 540px; margin: 0 auto; } }
+</style>
+
+<div class="direction-intro">
+  <h2>先确定整套 UI 的视觉气质</h2>
+  <p class="subtitle">同一套内容分别放进 TV 960×540 与手机 540×960 的框架。点击你最希望继续深化的方向。</p>
+</div>
+
+<div class="direction-grid">
+  <article class="direction-card" data-choice="a-cinematic-focus" onclick="toggleSelect(this)">
+    <span class="recommended">推荐</span>
+    <div class="direction-preview">
+      <div class="device-row">
+        <div class="tv-device cinema-tv">
+          <div class="topline"><b class="brand">WEBHTV</b><span>首页　电影　剧集　直播　⌕　设置</span><span>21:08</span></div>
+          <div class="hero"><span class="eyebrow">Now Trending</span><div class="title">沙丘：预言</div><div class="desc">权力、信仰与家族交织的史诗新章。4K · HDR · 杜比全景声</div><div class="actions"><span class="action">▶ 立即播放</span><span class="action ghost">＋ 收藏</span></div></div>
+          <div class="rail"><i class="poster"></i><i class="poster"></i><i class="poster"></i><i class="poster"></i></div>
+          <i class="device-gloss"></i>
+        </div>
+        <div class="phone-device cinema-phone">
+          <div class="m-top"><b>WEBHTV</b><span>⌕　◎</span></div>
+          <div class="m-feature"><span>今日精选</span><b>幕府将军</b></div>
+          <div class="m-label">继续观看</div><div class="m-posters"><i class="m-poster"></i><i class="m-poster"></i></div>
+          <i class="device-gloss"></i>
+        </div>
+      </div>
+    </div>
+    <div class="direction-copy"><h3><span class="pick-letter">A</span>电影感聚焦</h3><p>深色沉浸、海报与剧情信息主导；焦点态最清晰，适合遥控器与夜间观看，也最利于后续一比一 Android 还原。</p></div>
+  </article>
+
+  <article class="direction-card" data-choice="b-aurora-glass" onclick="toggleSelect(this)">
+    <div class="direction-preview">
+      <div class="device-row">
+        <div class="tv-device aurora-tv">
+          <div class="glass-side"><i class="navdot active"></i><i class="navdot"></i><i class="navdot"></i><i class="navdot"></i><i class="navdot"></i></div>
+          <div class="glass-main"><div class="greeting">晚上好，继续你的观影时光</div><div class="focus-card"><span>正在热播 · 第 08 集</span><b>庆余年</b></div><div class="glass-rail"><i class="tile"></i><i class="tile"></i><i class="tile"></i></div></div>
+          <i class="device-gloss"></i>
+        </div>
+        <div class="phone-device aurora-phone">
+          <div class="glass-pill"></div><div class="glass-feature"><span>继续观看</span><b>繁花</b></div><div class="glass-list"><i></i><i></i><i></i></div>
+          <i class="device-gloss"></i>
+        </div>
+      </div>
+    </div>
+    <div class="direction-copy"><h3><span class="pick-letter">B</span>极光玻璃</h3><p>延续项目现有壁纸资产，以半透明层级和柔和渐变建立高级感；个性更强，但低端 TV 的模糊效果需降级。</p></div>
+  </article>
+
+  <article class="direction-card" data-choice="c-editorial-light" onclick="toggleSelect(this)">
+    <div class="direction-preview">
+      <div class="device-row">
+        <div class="tv-device editorial-tv">
+          <div class="e-top"><span class="e-logo">WEBHTV / 放映室</span><span>发现　片库　直播　我的</span><span>搜索</span></div>
+          <div class="e-main"><div class="e-copy"><span class="e-index">本周专题 01</span><div class="e-title">银幕之外<br>仍有回响</div><div class="e-desc">精选口碑佳作与影人故事，重新发现值得观看的作品。</div></div><div class="e-art"></div></div>
+          <div class="e-cards"><div class="e-card">01<br>院线热映</div><div class="e-card">02<br>高分剧集</div><div class="e-card">03<br>经典重温</div><div class="e-card">04<br>人物专题</div></div>
+          <i class="device-gloss"></i>
+        </div>
+        <div class="phone-device editorial-phone">
+          <div class="em-top"><b>放映室</b><span>菜单</span></div><div class="em-art"></div><div class="em-tag">WEEKLY FEATURE</div><div class="em-title">银幕之外<br>仍有回响</div><div class="em-row"><span>继续观看</span><b>03</b></div><div class="em-row"><span>本周新片</span><b>24</b></div>
+          <i class="device-gloss"></i>
+        </div>
+      </div>
+    </div>
+    <div class="direction-copy"><h3><span class="pick-letter">C</span>编辑部画册</h3><p>亮色留白、杂志式排版与策展感最突出；适合内容发现，但播放器、直播和 TV 焦点态需要额外的深色子系统。</p></div>
+  </article>
+</div>
+
+<p class="direction-footnote">这里只选择整体视觉语言；全部页面、播放器与弹层会在方向确认后统一展开。</p>
